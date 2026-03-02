@@ -6,7 +6,7 @@
 
 <style>
 
-/* 🔥 FUENTE PERSONALIZADA SEGURA */
+/* 🔥 FUENTE PERSONALIZADA */
 @font-face {
   font-family: 'Hanzel';
   src: url('/tier-list/Hanzel-Normal-Font.5cb440da.ttf') format('truetype');
@@ -14,14 +14,11 @@
   font-style: normal;
 }
 
-/* Aplicación global con fallback seguro */
 body{
   font-family:'Hanzel', Arial, sans-serif;
   margin:0;
   background:#f3f3f3;
 }
-
-/* ---- ESTILO TIERS ---- */
 
 .section{
 padding:14px;
@@ -82,14 +79,13 @@ height:28px;
 margin-right:6px;
 }
 
+/* 🔥 AQUÍ ESTÁ EL CAMBIO */
 .row span{
-color:red;
-text-decoration:underline;
-font-weight:bold;
+color:black;        /* negro */
+text-decoration:none; /* sin subrayado */
+font-weight:normal;   /* sin negrita */
 font-size:13px;
 }
-
-/* ---- TOP BAR ---- */
 
 .topBar{
 position:fixed;
