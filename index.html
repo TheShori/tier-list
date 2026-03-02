@@ -1,155 +1,150 @@
 <script>
-const PASSWORD="1234";
-const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
-let editMode=false;
+const PASSWORD = "1234";
+const classes = ["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
+let editMode = false;
 
-/* DATOS BASE */
-const defaultData={
-god:{
-MUTANTES:["Magneto","Onslaught","Domino"],
-HÁBILES:["Shang Chi","Kate Bishop"],
-CIENTÍFICOS:["Hulk","Blue Marvel"],
-MÍSTICOS:["Doctor Doom"],
-CÓSMICOS:["Hercules"],
-TECNOS:["Shuri"]
-},
-semi:{
-MUTANTES:["Bishop","Profesor X"],
-HÁBILES:["Black Cat"],
-CIENTÍFICOS:["Mister Negative"],
-MÍSTICOS:["Wiccan"],
-CÓSMICOS:["Hyperion"],
-TECNOS:["Guardian"]
-}
+/* DATOS INICIALES */
+const defaultData = {
+  god: {
+    MUTANTES:["Magneto","Onslaught","Domino"],
+    HÁBILES:["Shang Chi","Kate Bishop"],
+    CIENTÍFICOS:["Hulk","Blue Marvel"],
+    MÍSTICOS:["Doctor Doom"],
+    CÓSMICOS:["Hercules"],
+    TECNOS:["Shuri"]
+  },
+  semi: {
+    MUTANTES:["Bishop","Profesor X"],
+    HÁBILES:["Black Cat"],
+    CIENTÍFICOS:["Mister Negative"],
+    MÍSTICOS:["Wiccan"],
+    CÓSMICOS:["Hyperion"],
+    TECNOS:["Guardian"]
+  }
 };
 
 /* CREAR TABLAS */
 function createTables(){
-["godTable","semiTable"].forEach(id=>{
-const table=document.getElementById(id);
-table.innerHTML="";
-classes.forEach(cls=>{
-    const col=document.createElement("div");
-    col.className="column";
-    col.dataset.class=cls;
-    col.dataset.table=id;
+  ["godTable","semiTable"].forEach(tableId=>{
+    const table = document.getElementById(tableId);
+    table.innerHTML = "";
 
-    const header=document.createElement("div");
-    header.className="column-header";
-    header.textContent=cls;
-    col.appendChild(header);
+    classes.forEach(cls=>{
+      const column = document.createElement("div");
+      column.className = "column";
+      column.dataset.class = cls;
 
-    col.ondragover=e=>e.preventDefault();
-    col.ondrop=e=>{
+      const header = document.createElement("div");
+      header.className = "column-header";
+      header.textContent = cls;
+      column.appendChild(header);
+
+      column.ondragover = e => e.preventDefault();
+      column.ondrop = e=>{
         if(!editMode) return;
-        const dragged=e.dataTransfer.getData("text");
-        col.appendChild(document.getElementById(dragged));
+        const id = e.dataTransfer.getData("text");
+        column.appendChild(document.getElementById(id));
         saveData();
-    };
+      };
 
-    table.appendChild(col);
-});
-});
+      table.appendChild(column);
+    });
+  });
 }
 
 /* CREAR FILA */
 function createRow(name){
-const row=document.createElement("div");
-row.className="row";
-row.draggable=true;
-row.id="row-"+Date.now()+Math.random();
+  const row = document.createElement("div");
+  row.className = "row";
+  row.draggable = true;
+  row.id = "row-"+Math.random();
 
-const img=`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
+  const img = "https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff";
 
-row.innerHTML=`<img src="${img}"><span>${name}</span>`;
+  row.innerHTML = "<img src='"+img+"'><span>"+name+"</span>";
 
-row.ondragstart=e=>{
-if(!editMode) return;
-e.dataTransfer.setData("text",row.id);
-};
+  row.ondragstart = e=>{
+    if(!editMode) return;
+    e.dataTransfer.setData("text",row.id);
+  };
 
-return row;
+  return row;
+}
+
+/* CARGAR DATOS */
+function loadData(){
+  const saved = localStorage.getItem("tierData");
+  const data = saved ? JSON.parse(saved) : defaultData;
+
+  Object.keys(data).forEach(tier=>{
+    const tableId = tier==="god" ? "godTable" : "semiTable";
+
+    classes.forEach(cls=>{
+      if(data[tier][cls]){
+        data[tier][cls].forEach(name=>{
+          const column = document.querySelector("#"+tableId+" [data-class='"+cls+"']");
+          if(column){
+            column.appendChild(createRow(name));
+          }
+        });
+      }
+    });
+  });
 }
 
 /* GUARDAR */
 function saveData(){
-const data={god:{},semi:{}};
+  const data = {god:{}, semi:{}};
 
-["godTable","semiTable"].forEach(id=>{
-const tier=id==="godTable"?"god":"semi";
+  ["godTable","semiTable"].forEach(tableId=>{
+    const tierName = tableId==="godTable" ? "god" : "semi";
 
-classes.forEach(cls=>{
-data[tier][cls]=[];
+    classes.forEach(cls=>{
+      data[tierName][cls] = [];
 
-document.querySelectorAll(`#${id} [data-class='${cls}'] .row`)
-.forEach(row=>{
-data[tier][cls].push(row.querySelector("span").textContent);
-});
+      document.querySelectorAll("#"+tableId+" [data-class='"+cls+"'] .row")
+      .forEach(row=>{
+        data[tierName][cls].push(row.querySelector("span").textContent);
+      });
 
-});
-});
+    });
+  });
 
-localStorage.setItem("tierData",JSON.stringify(data));
+  localStorage.setItem("tierData", JSON.stringify(data));
 }
 
-/* CARGAR */
-function loadData(){
-const saved=localStorage.getItem("tierData");
-if(saved){
-return JSON.parse(saved);
-}
-return defaultData;
-}
-
-/* ACTIVAR EDIT */
+/* EDIT MODE */
 function activateEdit(){
-const pass=prompt("Contraseña:");
-if(pass===PASSWORD){
-editMode=true;
-document.getElementById("controls").style.display="block";
-alert("Modo edición activado");
-}else{
-alert("Incorrecta");
-}
+  const pass = prompt("Contraseña:");
+  if(pass===PASSWORD){
+    editMode = true;
+    document.getElementById("controls").style.display="block";
+    alert("Modo edición activado");
+  } else {
+    alert("Incorrecta");
+  }
 }
 
 /* AÑADIR */
 function addCharacter(){
-const name=document.getElementById("nameInput").value;
-const tier=document.getElementById("tierSelect").value;
-const cls=document.getElementById("classSelect").value;
+  const name = document.getElementById("nameInput").value;
+  const tier = document.getElementById("tierSelect").value;
+  const cls = document.getElementById("classSelect").value;
 
-if(!name) return;
+  if(!name) return;
 
-const tableId=tier==="god"?"godTable":"semiTable";
+  const tableId = tier==="god" ? "godTable" : "semiTable";
+  const column = document.querySelector("#"+tableId+" [data-class='"+cls+"']");
 
-document.querySelector(`#${tableId} [data-class='${cls}']`)
-.appendChild(createRow(name));
+  if(column){
+    column.appendChild(createRow(name));
+    saveData();
+  }
 
-document.getElementById("nameInput").value="";
-saveData();
-}
-
-/* RESET OPCIONAL */
-function resetData(){
-localStorage.removeItem("tierData");
-location.reload();
+  document.getElementById("nameInput").value="";
 }
 
 /* INIT */
 createTables();
 loadData();
-
-const data=loadData();
-Object.keys(data).forEach(tier=>{
-const tableId=tier==="god"?"godTable":"semiTable";
-classes.forEach(cls=>{
-if(data[tier][cls]){
-data[tier][cls].forEach(name=>{
-document.querySelector(`#${tableId} [data-class='${cls}']`)
-.appendChild(createRow(name));
-});
-}
-});
-});
 </script>
