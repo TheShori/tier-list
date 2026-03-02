@@ -1,34 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Tier List</title>
-<style>
-body{font-family:Arial;margin:0;background:#f3f3f3}
-.section{padding:12px;text-align:center;font-weight:bold;font-size:22px;border:3px solid black}
-.god{background:#d85c5c}
-.semi{background:#e6a764}
-.table{display:flex;border-left:3px solid black;border-right:3px solid black;margin-bottom:40px}
-.column{flex:1;border-right:3px solid black;background:white;min-height:200px}
-.column:last-child{border-right:none}
-.header{background:#444;color:white;text-align:center;padding:8px;border-bottom:3px solid black}
-.row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black;cursor:grab}
-.row img{width:28px;height:28px;margin-right:6px}
-.row span{color:red;text-decoration:underline;font-weight:bold;font-size:13px}
-</style>
-</head>
-<body>
-
-<div class="section god">GOD TIER</div>
-<div class="table" id="god"></div>
-
-<div class="section semi">SEMI-GOD TIER</div>
-<div class="table" id="semi"></div>
-
 <script>
 const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-const data={
+const defaultData={
 god:{
 MUTANTES:["Magneto","Onslaught"],
 HÁBILES:["Shang Chi"],
@@ -50,6 +23,7 @@ TECNOS:["Guardian"]
 function createTables(){
 ["god","semi"].forEach(tier=>{
 let table=document.getElementById(tier);
+table.innerHTML="";
 classes.forEach(cls=>{
 let col=document.createElement("div");
 col.className="column";
@@ -60,6 +34,7 @@ col.ondragover=e=>e.preventDefault();
 col.ondrop=e=>{
 let id=e.dataTransfer.getData("id");
 col.appendChild(document.getElementById(id));
+save(); // 🔥 guardamos al mover
 };
 
 table.appendChild(col);
@@ -80,6 +55,9 @@ return r;
 }
 
 function load(){
+let saved=localStorage.getItem("tierData");
+let data=saved?JSON.parse(saved):defaultData;
+
 Object.keys(data).forEach(tier=>{
 classes.forEach(cls=>{
 data[tier][cls].forEach(name=>{
@@ -89,9 +67,23 @@ document.querySelector("#"+tier+" [data-cls='"+cls+"']").appendChild(createRow(n
 });
 }
 
+function save(){
+let data={god:{},semi:{}};
+
+["god","semi"].forEach(tier=>{
+classes.forEach(cls=>{
+data[tier][cls]=[];
+document.querySelectorAll("#"+tier+" [data-cls='"+cls+"'] .row")
+.forEach(r=>{
+data[tier][cls].push(r.querySelector("span").textContent);
+});
+});
+});
+
+localStorage.setItem("tierData",JSON.stringify(data));
+}
+
 createTables();
 load();
 </script>
 
-</body>
-</html>
