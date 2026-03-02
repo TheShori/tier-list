@@ -50,6 +50,20 @@ color:white;
 cursor:pointer;
 border-radius:6px;
 }
+.adminBadge{
+background:#2ecc71;
+color:white;
+padding:4px 8px;
+border-radius:12px;
+font-size:12px;
+}
+.viewerBadge{
+background:#999;
+color:white;
+padding:4px 8px;
+border-radius:12px;
+font-size:12px;
+}
 </style>
 </head>
 
@@ -87,6 +101,8 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 const tierRef = db.collection("tierData").doc("main");
 
+const OWNER_UID = "HizrEHr3BjgUTyJZsSPoei0gHrA2";
+
 let isAdmin=false;
 let currentData=null;
 
@@ -104,7 +120,12 @@ auth.signOut();
 
 auth.onAuthStateChanged(user=>{
 if(user){
+
+if(user.uid === OWNER_UID){
 isAdmin=true;
+}else{
+isAdmin=false;
+}
 
 loginBtn.style.display="none";
 
@@ -112,6 +133,7 @@ userArea.innerHTML=`
 <div class="userInfo">
   <img src="${user.photoURL}">
   <span>${user.displayName}</span>
+  ${isAdmin ? '<div class="adminBadge">ADMIN</div>' : '<div class="viewerBadge">VIEWER</div>'}
   <div class="button" onclick="logout()">Cerrar sesión</div>
 </div>
 `;
