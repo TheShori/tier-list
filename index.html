@@ -6,12 +6,9 @@
 
 <style>
 
-/* 🔥 FUENTE PERSONALIZADA */
 @font-face {
   font-family: 'Hanzel';
   src: url('/tier-list/Hanzel-Normal-Font.5cb440da.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
 }
 
 body{
@@ -66,11 +63,14 @@ align-items:center;
 padding:6px;
 border-bottom:2px solid black;
 background:white;
+cursor:pointer;
 transition:all 0.15s ease;
 }
 
-.row.dragging{
-opacity:0.4;
+.row span{
+color:black;
+font-weight:normal;
+font-size:13px;
 }
 
 .row img{
@@ -79,38 +79,70 @@ height:28px;
 margin-right:6px;
 }
 
-/* 🔥 AQUÍ ESTÁ EL CAMBIO */
-.row span{
-color:black;        /* negro */
-text-decoration:none; /* sin subrayado */
-font-weight:normal;   /* sin negrita */
-font-size:13px;
+.placeholder{
+height:40px;
+background:rgba(0,0,0,0.1);
+border:2px dashed #999;
+margin:4px 0;
 }
 
-.topBar{
+/* 🔥 MODAL */
+
+.modalOverlay{
 position:fixed;
-top:10px;
-right:10px;
-display:flex;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+display:none;
 align-items:center;
-gap:10px;
-z-index:1000;
+justify-content:center;
+z-index:2000;
 }
 
-.userInfo{
-display:flex;
-align-items:center;
-gap:8px;
+.modal{
 background:white;
-padding:6px 10px;
-border-radius:20px;
-box-shadow:0 2px 6px rgba(0,0,0,0.2);
+width:600px;
+max-width:95%;
+padding:20px;
+border-radius:8px;
+display:flex;
+gap:20px;
 }
 
-.userInfo img{
-width:28px;
-height:28px;
-border-radius:50%;
+.modal img{
+width:180px;
+height:180px;
+object-fit:cover;
+border-radius:6px;
+background:#eee;
+}
+
+.modalContent{
+flex:1;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.modal input,
+.modal textarea{
+width:100%;
+padding:6px;
+font-family:inherit;
+}
+
+.modal textarea{
+height:120px;
+resize:none;
+}
+
+.modalButtons{
+display:flex;
+justify-content:flex-end;
+gap:10px;
+margin-top:10px;
 }
 
 .button{
@@ -121,27 +153,13 @@ cursor:pointer;
 border-radius:6px;
 }
 
-.adminBadge{
-background:#2ecc71;
-color:white;
-padding:4px 8px;
-border-radius:12px;
-font-size:12px;
-}
-
-.viewerBadge{
-background:#999;
-color:white;
-padding:4px 8px;
-border-radius:12px;
-font-size:12px;
-}
-
-.placeholder{
-height:40px;
-background:rgba(0,0,0,0.1);
-border:2px dashed #999;
-margin:4px 0;
+.topBar{
+position:fixed;
+top:10px;
+right:10px;
+display:flex;
+gap:10px;
+z-index:1000;
 }
 
 </style>
@@ -154,6 +172,22 @@ margin:4px 0;
 </div>
 
 <div id="tiersContainer"></div>
+
+<!-- 🔥 MODAL -->
+<div class="modalOverlay" id="modalOverlay">
+  <div class="modal">
+    <img id="modalImage">
+    <div class="modalContent">
+      <input id="modalName" placeholder="Nombre del personaje">
+      <input id="modalImageUrl" placeholder="URL de la imagen">
+      <textarea id="modalInfo" placeholder="Información importante..."></textarea>
+      <div class="modalButtons">
+        <div class="button" onclick="closeModal()">Cerrar</div>
+        <div class="button" id="saveBtn">Guardar</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -178,6 +212,10 @@ const tierRef = db.collection("tierData").doc("main");
 
 const OWNER_UID="HizrEHr3BjgUTyJZsSPoei0gHrA2";
 
+let isAdmin=false;
+let currentData=null;
+let selectedCharacter=null;
+
 const tiers=[
 {id:"god",label:"GOD TIER",class:"god"},
 {id:"semi",label:"SEMI-GOD TIER",class:"semi"},
@@ -188,39 +226,8 @@ const tiers=[
 
 const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-let isAdmin=false;
-let currentData=null;
-let draggedElement=null;
-let placeholder=document.createElement("div");
-placeholder.className="placeholder";
-
-const loginBtn=document.getElementById("loginBtn");
-const userArea=document.getElementById("userArea");
-
-loginBtn.onclick=()=>{
-const provider=new firebase.auth.GoogleAuthProvider();
-auth.signInWithPopup(provider);
-};
-
-function logout(){auth.signOut();}
-
 auth.onAuthStateChanged(user=>{
-if(user){
-isAdmin=(user.uid===OWNER_UID);
-loginBtn.style.display="none";
-userArea.innerHTML=`
-<div class="userInfo">
-<img src="${user.photoURL}">
-<span>${user.displayName}</span>
-${isAdmin?'<div class="adminBadge">ADMIN</div>':'<div class="viewerBadge">VIEWER</div>'}
-<div class="button" onclick="logout()">Cerrar sesión</div>
-</div>`;
-}else{
-isAdmin=false;
-loginBtn.style.display="block";
-userArea.innerHTML="";
-}
-if(currentData) render(currentData);
+isAdmin=user && user.uid===OWNER_UID;
 });
 
 function buildStructure(){
@@ -243,97 +250,64 @@ let col=document.createElement("div");
 col.className="column";
 col.dataset.cls=cls;
 col.innerHTML="<div class='header'>"+cls+"</div>";
-
-col.addEventListener("dragover",e=>{
-if(!isAdmin) return;
-e.preventDefault();
-const afterElement=getDragAfterElement(col,e.clientY);
-if(afterElement==null){
-col.appendChild(placeholder);
-}else{
-col.insertBefore(placeholder,afterElement);
-}
-});
-
-col.addEventListener("drop",e=>{
-if(!isAdmin) return;
-e.preventDefault();
-if(draggedElement){
-col.insertBefore(draggedElement,placeholder);
-placeholder.remove();
-saveData();
-}
-});
-
 table.appendChild(col);
 });
 });
 }
 
-function getDragAfterElement(container,y){
-const elements=[...container.querySelectorAll(".row:not(.dragging)")];
-return elements.reduce((closest,child)=>{
-const box=child.getBoundingClientRect();
-const offset=y-box.top-box.height/2;
-if(offset<0 && offset>closest.offset){
-return{offset:offset,element:child};
-}else{
-return closest;
-}
-},{offset:Number.NEGATIVE_INFINITY}).element;
-}
-
-function createRow(name){
+function createRow(character){
 let r=document.createElement("div");
 r.className="row";
-r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
+r.innerHTML="<span>"+character.name+"</span>";
 
-if(isAdmin){
-r.draggable=true;
-r.addEventListener("dragstart",()=>{
-draggedElement=r;
-r.classList.add("dragging");
-});
-r.addEventListener("dragend",()=>{
-r.classList.remove("dragging");
-placeholder.remove();
-draggedElement=null;
-});
-}
+r.onclick=()=>openModal(character);
+
 return r;
 }
 
-async function saveData(){
-if(!isAdmin)return;
-let data={};
-tiers.forEach(t=>{
-data[t.id]={};
-classes.forEach(cls=>{
-data[t.id][cls]=[];
-document.querySelectorAll("#"+t.id+" [data-cls='"+cls+"'] .row")
-.forEach(r=>{
-data[t.id][cls].push(r.querySelector("span").textContent);
-});
-});
-});
-await tierRef.set(data);
+function openModal(character){
+selectedCharacter=character;
+document.getElementById("modalOverlay").style.display="flex";
+document.getElementById("modalName").value=character.name||"";
+document.getElementById("modalImageUrl").value=character.image||"";
+document.getElementById("modalInfo").value=character.info||"";
+document.getElementById("modalImage").src=character.image||"";
+document.getElementById("saveBtn").style.display=isAdmin?"block":"none";
 }
 
-function render(data){
+function closeModal(){
+document.getElementById("modalOverlay").style.display="none";
+}
+
+document.getElementById("modalImageUrl").addEventListener("input",e=>{
+document.getElementById("modalImage").src=e.target.value;
+});
+
+document.getElementById("saveBtn").onclick=async()=>{
+if(!isAdmin)return;
+
+selectedCharacter.name=document.getElementById("modalName").value;
+selectedCharacter.image=document.getElementById("modalImageUrl").value;
+selectedCharacter.info=document.getElementById("modalInfo").value;
+
+await tierRef.set(currentData);
+closeModal();
+};
+
+async function render(data){
 currentData=data;
 buildStructure();
 createTables();
+
 tiers.forEach(t=>{
-if(data[t.id]){
 classes.forEach(cls=>{
-if(Array.isArray(data[t.id][cls])){
-data[t.id][cls].forEach(name=>{
+if(data[t.id] && data[t.id][cls]){
+data[t.id][cls].forEach(char=>{
 document.querySelector("#"+t.id+" [data-cls='"+cls+"']")
-.appendChild(createRow(name));
+.appendChild(createRow(char));
 });
 }
 });
-}
 });
 }
 
