@@ -13,13 +13,25 @@ body{font-family:Arial;margin:0;background:#f3f3f3}
 .column{flex:1;border-right:3px solid black;background:white;min-height:220px}
 .column:last-child{border-right:none}
 .header{background:#444;color:white;text-align:center;padding:8px;border-bottom:3px solid black;font-weight:bold}
-.row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black;cursor:grab}
+.row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black}
 .row img{width:28px;height:28px;margin-right:6px}
 .row span{color:red;text-decoration:underline;font-weight:bold;font-size:13px}
+.adminButton{
+position:fixed;
+top:10px;
+right:10px;
+padding:8px 12px;
+background:black;
+color:white;
+cursor:pointer;
+z-index:1000;
+}
 </style>
 </head>
 
 <body>
+
+<div class="adminButton" onclick="toggleAdmin()">Modo Admin</div>
 
 <div class="section god">GOD TIER</div>
 <div class="table" id="god"></div>
@@ -46,26 +58,30 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const tierRef = db.collection("tierData").doc("main");
 
+const ADMIN_PASSWORD = "Genesisesminovia6.";  // 🔐 CAMBIA ESTO
+let isAdmin = false;
+
 const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-const defaultData={
-god:{
-MUTANTES:["Magneto","Onslaught"],
-HÁBILES:["Shang Chi"],
-CIENTÍFICOS:["Hulk"],
-MÍSTICOS:["Doctor Doom"],
-CÓSMICOS:["Hercules"],
-TECNOS:["Shuri"]
-},
-semi:{
-MUTANTES:["Bishop"],
-HÁBILES:["Black Cat"],
-CIENTÍFICOS:["Mister Negative"],
-MÍSTICOS:["Wiccan"],
-CÓSMICOS:["Hyperion"],
-TECNOS:["Guardian"]
+function toggleAdmin(){
+if(isAdmin){
+isAdmin=false;
+alert("Modo público activado");
+render(currentData);
+return;
 }
-};
+
+let pass=prompt("Introduce contraseña admin:");
+if(pass===ADMIN_PASSWORD){
+isAdmin=true;
+alert("Modo admin activado");
+render(currentData);
+}else{
+alert("Contraseña incorrecta");
+}
+}
+
+let currentData=null;
 
 function createTables(){
 ["god","semi"].forEach(tier=>{
@@ -77,6 +93,7 @@ col.className="column";
 col.dataset.cls=cls;
 col.innerHTML="<div class='header'>"+cls+"</div>";
 
+if(isAdmin){
 col.ondragover=e=>e.preventDefault();
 col.ondrop=e=>{
 let id=e.dataTransfer.getData("id");
@@ -86,6 +103,7 @@ col.appendChild(dragged);
 saveData();
 }
 };
+}
 
 table.appendChild(col);
 });
@@ -95,21 +113,26 @@ table.appendChild(col);
 function createRow(name){
 let r=document.createElement("div");
 r.className="row";
-r.draggable=true;
 r.id="r"+Math.random();
 
 r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
 
+if(isAdmin){
+r.draggable=true;
+r.style.cursor="grab";
 r.ondragstart=e=>{
 e.dataTransfer.setData("id",r.id);
 };
+}else{
+r.draggable=false;
+r.style.cursor="default";
+}
 
 return r;
 }
 
 async function saveData(){
 let data={god:{},semi:{}};
-
 ["god","semi"].forEach(tier=>{
 classes.forEach(cls=>{
 data[tier][cls]=[];
@@ -119,13 +142,12 @@ data[tier][cls].push(r.querySelector("span").textContent);
 });
 });
 });
-
 await tierRef.set(data);
 }
 
 function render(data){
+currentData=data;
 createTables();
-
 Object.keys(data).forEach(tier=>{
 classes.forEach(cls=>{
 if(Array.isArray(data[tier][cls])){
@@ -139,22 +161,15 @@ document.querySelector("#"+tier+" [data-cls='"+cls+"']")
 }
 
 async function init(){
-
 let snap=await tierRef.get();
-
-if(!snap.exists){
-await tierRef.set(defaultData);
-render(defaultData);
-}else{
+if(snap.exists){
 render(snap.data());
 }
-
 tierRef.onSnapshot(doc=>{
 if(doc.exists){
 render(doc.data());
 }
 });
-
 }
 
 init();
