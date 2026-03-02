@@ -37,6 +37,7 @@ flex:1;
 border-right:3px solid black;
 background:white;
 min-height:200px;
+position:relative;
 }
 
 .column:last-child{border-right:none}
@@ -53,9 +54,14 @@ font-weight:bold;
 .row{
 display:flex;
 align-items:center;
-padding:4px;
+padding:6px;
 border-bottom:2px solid black;
 background:white;
+transition:transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.row.dragging{
+opacity:0.4;
 }
 
 .row img{
@@ -69,6 +75,13 @@ color:red;
 text-decoration:underline;
 font-weight:bold;
 font-size:13px;
+}
+
+.placeholder{
+height:40px;
+background:rgba(0,0,0,0.1);
+border:2px dashed #999;
+margin:4px 0;
 }
 
 .topBar{
@@ -166,6 +179,9 @@ const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TEC
 
 let isAdmin=false;
 let currentData=null;
+let draggedElement=null;
+let placeholder=document.createElement("div");
+placeholder.className="placeholder";
 
 const loginBtn=document.getElementById("loginBtn");
 const userArea=document.getElementById("userArea");
@@ -217,35 +233,64 @@ col.className="column";
 col.dataset.cls=cls;
 col.innerHTML="<div class='header'>"+cls+"</div>";
 
-if(isAdmin){
-col.ondragover=e=>e.preventDefault();
-col.ondrop=e=>{
-let id=e.dataTransfer.getData("id");
-let dragged=document.getElementById(id);
-if(dragged){
-col.appendChild(dragged);
+col.addEventListener("dragover",e=>{
+if(!isAdmin) return;
+e.preventDefault();
+
+const afterElement=getDragAfterElement(col,e.clientY);
+if(afterElement==null){
+col.appendChild(placeholder);
+}else{
+col.insertBefore(placeholder,afterElement);
+}
+});
+
+col.addEventListener("drop",e=>{
+if(!isAdmin) return;
+e.preventDefault();
+if(draggedElement){
+col.insertBefore(draggedElement,placeholder);
+placeholder.remove();
 saveData();
 }
-};
-}
+});
 
 table.appendChild(col);
 });
 });
 }
 
+function getDragAfterElement(container,y){
+const elements=[...container.querySelectorAll(".row:not(.dragging)")];
+return elements.reduce((closest,child)=>{
+const box=child.getBoundingClientRect();
+const offset=y-box.top-box.height/2;
+if(offset<0 && offset>closest.offset){
+return{offset:offset,element:child};
+}else{
+return closest;
+}
+},{offset:Number.NEGATIVE_INFINITY}).element;
+}
+
 function createRow(name){
 let r=document.createElement("div");
 r.className="row";
-r.id="r"+Math.random();
 r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
 
 if(isAdmin){
 r.draggable=true;
-r.style.cursor="grab";
-r.ondragstart=e=>{
-e.dataTransfer.setData("id",r.id);
-};
+
+r.addEventListener("dragstart",()=>{
+draggedElement=r;
+r.classList.add("dragging");
+});
+
+r.addEventListener("dragend",()=>{
+r.classList.remove("dragging");
+placeholder.remove();
+draggedElement=null;
+});
 }
 
 return r;
@@ -287,26 +332,17 @@ document.querySelector("#"+t.id+" [data-cls='"+cls+"']")
 });
 }
 
-/* 🔥 AUTO SCROLL MIENTRAS ARRASTRAS */
-
 document.addEventListener("dragover", e=>{
 if(!isAdmin) return;
-
 const scrollZone=100;
 const scrollSpeed=15;
 
-if(e.clientY < scrollZone){
-window.scrollBy(0,-scrollSpeed);
-}
-
-if(e.clientY > window.innerHeight - scrollZone){
-window.scrollBy(0,scrollSpeed);
-}
+if(e.clientY<scrollZone) window.scrollBy(0,-scrollSpeed);
+if(e.clientY>window.innerHeight-scrollZone) window.scrollBy(0,scrollSpeed);
 });
 
 async function init(){
 let snap=await tierRef.get();
-
 if(!snap.exists){
 let baseData={};
 tiers.forEach(t=>{
