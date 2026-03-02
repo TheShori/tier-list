@@ -1,188 +1,150 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Tier List MCOC PRO</title>
+<meta charset="UTF-8">
+<title>Tier List MCOC PRO</title>
 
-  <style>
-    /* 🔥 FUENTE PERSONALIZADA */
-    @font-face {
-      font-family: 'Hanzel';
-      src: url('/tier-list/Hanzel-Normal-Font.5cb440da.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-    }
+<style>
 
-    body{
-      font-family:'Hanzel', Arial, sans-serif;
-      margin:0;
-      background:#f3f3f3;
-    }
+/* 🔥 FUENTE PERSONALIZADA */
+@font-face {
+  font-family: 'Hanzel';
+  src: url('/tier-list/Hanzel-Normal-Font.5cb440da.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 
-    .section{
-      padding:14px;
-      text-align:center;
-      font-weight:bold;
-      font-size:24px;
-      border:3px solid black;
-    }
+body{
+  font-family:'Hanzel', Arial, sans-serif;
+  margin:0;
+  background:#f3f3f3;
+}
 
-    .god{background:#d85c5c}
-    .semi{background:#e6a764}
-    .usables{background:#f1d35c}
-    .ocasionales{background:#5fa94e}
-    .meme{background:#3f74c8}
+.section{
+padding:14px;
+text-align:center;
+font-weight:bold;
+font-size:24px;
+border:3px solid black;
+}
 
-    .table{
-      display:flex;
-      border-left:3px solid black;
-      border-right:3px solid black;
-      margin-bottom:40px;
-    }
+.god{background:#d85c5c}
+.semi{background:#e6a764}
+.usables{background:#f1d35c}
+.ocasionales{background:#5fa94e}
+.meme{background:#3f74c8}
 
-    .column{
-      flex:1;
-      border-right:3px solid black;
-      background:white;
-      min-height:200px;
-      position:relative;
-    }
+.table{
+display:flex;
+border-left:3px solid black;
+border-right:3px solid black;
+margin-bottom:40px;
+}
 
-    .column:last-child{border-right:none}
+.column{
+flex:1;
+border-right:3px solid black;
+background:white;
+min-height:200px;
+position:relative;
+}
 
-    .header{
-      background:#444;
-      color:white;
-      text-align:center;
-      padding:8px;
-      border-bottom:3px solid black;
-      font-weight:bold;
-    }
+.column:last-child{border-right:none}
 
-    .row{
-      display:flex;
-      align-items:center;
-      padding:6px;
-      border-bottom:2px solid black;
-      background:white;
-      transition:all 0.15s ease;
-    }
+.header{
+background:#444;
+color:white;
+text-align:center;
+padding:8px;
+border-bottom:3px solid black;
+font-weight:bold;
+}
 
-    .row.dragging{
-      opacity:0.4;
-    }
+.row{
+display:flex;
+align-items:center;
+padding:6px;
+border-bottom:2px solid black;
+background:white;
+transition:all 0.15s ease;
+}
 
-    .row img{
-      width:28px;
-      height:28px;
-      margin-right:6px;
-    }
+.row.dragging{
+opacity:0.4;
+}
 
-    .row span{
-      color:black;        
-      font-weight:normal;
-      font-size:13px;
-    }
+.row img{
+width:28px;
+height:28px;
+margin-right:6px;
+}
 
-    .topBar{
-      position:fixed;
-      top:10px;
-      right:10px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      z-index:1000;
-    }
+/* 🔥 AQUÍ ESTÁ EL CAMBIO */
+.row span{
+color:black;        /* negro */
+text-decoration:none; /* sin subrayado */
+font-weight:normal;   /* sin negrita */
+font-size:13px;
+}
 
-    .userInfo{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      background:white;
-      padding:6px 10px;
-      border-radius:20px;
-      box-shadow:0 2px 6px rgba(0,0,0,0.2);
-    }
+.topBar{
+position:fixed;
+top:10px;
+right:10px;
+display:flex;
+align-items:center;
+gap:10px;
+z-index:1000;
+}
 
-    .userInfo img{
-      width:28px;
-      height:28px;
-      border-radius:50%;
-    }
+.userInfo{
+display:flex;
+align-items:center;
+gap:8px;
+background:white;
+padding:6px 10px;
+border-radius:20px;
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
 
-    .button{
-      padding:6px 10px;
-      background:black;
-      color:white;
-      cursor:pointer;
-      border-radius:6px;
-    }
+.userInfo img{
+width:28px;
+height:28px;
+border-radius:50%;
+}
 
-    .adminBadge{
-      background:#2ecc71;
-      color:white;
-      padding:4px 8px;
-      border-radius:12px;
-      font-size:12px;
-    }
+.button{
+padding:6px 10px;
+background:black;
+color:white;
+cursor:pointer;
+border-radius:6px;
+}
 
-    .viewerBadge{
-      background:#999;
-      color:white;
-      padding:4px 8px;
-      border-radius:12px;
-      font-size:12px;
-    }
+.adminBadge{
+background:#2ecc71;
+color:white;
+padding:4px 8px;
+border-radius:12px;
+font-size:12px;
+}
 
-    .placeholder{
-      height:40px;
-      background:rgba(0,0,0,0.1);
-      border:2px dashed #999;
-      margin:4px 0;
-    }
+.viewerBadge{
+background:#999;
+color:white;
+padding:4px 8px;
+border-radius:12px;
+font-size:12px;
+}
 
-    /* 🔥 NUEVO MENÚ ADMIN */
-    .adminMenu {
-      padding: 15px;
-      background: #f4f4f4;
-      border: 3px solid #ddd;
-      margin: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+.placeholder{
+height:40px;
+background:rgba(0,0,0,0.1);
+border:2px dashed #999;
+margin:4px 0;
+}
 
-    .adminMenu input, .adminMenu textarea {
-      padding: 8px;
-      font-size: 14px;
-      margin-bottom: 10px;
-      width: 100%;
-    }
-
-    .newCharacters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .newCharacterCard {
-      width: 150px;
-      height: 200px;
-      background: #e1e1e1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 5px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .newCharacterCard img {
-      width: 50px;
-      height: 50px;
-    }
-
-  </style>
+</style>
 </head>
 <body>
 
@@ -190,18 +152,6 @@
   <div id="loginBtn" class="button">Login</div>
   <div id="userArea"></div>
 </div>
-
-<!-- Menú para Administrador -->
-<div id="adminMenu" class="adminMenu" style="display: none;">
-  <input id="newCharName" type="text" placeholder="Nombre del personaje">
-  <input id="newCharImage" type="url" placeholder="URL de la imagen">
-  <textarea id="newCharInfo" placeholder="Información del personaje"></textarea>
-  <div class="button" id="addNewCharacterBtn">Añadir Personaje</div>
-</div>
-
-<!-- Nueva Sección de Personajes Pendientes -->
-<div class="section">Nuevos Personajes</div>
-<div class="table" id="newCharactersContainer"></div>
 
 <div id="tiersContainer"></div>
 
@@ -228,159 +178,188 @@ const tierRef = db.collection("tierData").doc("main");
 
 const OWNER_UID="HizrEHr3BjgUTyJZsSPoei0gHrA2";
 
-let isAdmin=false;
-let currentData=null;
+const tiers=[
+{id:"god",label:"GOD TIER",class:"god"},
+{id:"semi",label:"SEMI-GOD TIER",class:"semi"},
+{id:"usables",label:"USABLES TIER",class:"usables"},
+{id:"ocasionales",label:"OCASIONALES TIER",class:"ocasionales"},
+{id:"meme",label:"MEME TIER",class:"meme"}
+];
 
-const tiers=["god","semi","usables","ocasionales","meme"];
 const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-document.getElementById("loginBtn").onclick=()=>{
-  const provider=new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider);
+let isAdmin=false;
+let currentData=null;
+let draggedElement=null;
+let placeholder=document.createElement("div");
+placeholder.className="placeholder";
+
+const loginBtn=document.getElementById("loginBtn");
+const userArea=document.getElementById("userArea");
+
+loginBtn.onclick=()=>{
+const provider=new firebase.auth.GoogleAuthProvider();
+auth.signInWithPopup(provider);
 };
+
+function logout(){auth.signOut();}
 
 auth.onAuthStateChanged(user=>{
-  if(user){
-    isAdmin=user.uid===OWNER_UID;
-    loginBtn.style.display="none";
-    userArea.innerHTML=`
-      <div class="userInfo">
-        <img src="${user.photoURL}">
-        <span>${user.displayName}</span>
-        <div class="button" onclick="logout()">Cerrar sesión</div>
-      </div>`;
-
-    // Mostrar menú de admin
-    if (isAdmin) {
-      document.getElementById("adminMenu").style.display = 'block';
-    } else {
-      document.getElementById("adminMenu").style.display = 'none';
-    }
-  } else {
-    isAdmin=false;
-    loginBtn.style.display="block";
-    userArea.innerHTML="";
-    document.getElementById("adminMenu").style.display = 'none'; // Ocultar menú admin
-  }
+if(user){
+isAdmin=(user.uid===OWNER_UID);
+loginBtn.style.display="none";
+userArea.innerHTML=`
+<div class="userInfo">
+<img src="${user.photoURL}">
+<span>${user.displayName}</span>
+${isAdmin?'<div class="adminBadge">ADMIN</div>':'<div class="viewerBadge">VIEWER</div>'}
+<div class="button" onclick="logout()">Cerrar sesión</div>
+</div>`;
+}else{
+isAdmin=false;
+loginBtn.style.display="block";
+userArea.innerHTML="";
+}
+if(currentData) render(currentData);
 });
 
-function logout() {
-  auth.signOut();
+function buildStructure(){
+const container=document.getElementById("tiersContainer");
+container.innerHTML="";
+tiers.forEach(t=>{
+container.innerHTML+=`
+<div class="section ${t.class}">${t.label}</div>
+<div class="table" id="${t.id}"></div>
+`;
+});
 }
 
-// Agregar nuevo personaje
-document.getElementById("addNewCharacterBtn").onclick = () => {
-  const name = document.getElementById("newCharName").value;
-  const image = document.getElementById("newCharImage").value;
-  const info = document.getElementById("newCharInfo").value;
+function createTables(){
+tiers.forEach(t=>{
+const table=document.getElementById(t.id);
+table.innerHTML="";
+classes.forEach(cls=>{
+let col=document.createElement("div");
+col.className="column";
+col.dataset.cls=cls;
+col.innerHTML="<div class='header'>"+cls+"</div>";
 
-  if (name && image) {
-    const newCharacter = { name, image, info };
-    addNewCharacter(newCharacter);
-  }
-};
+col.addEventListener("dragover",e=>{
+if(!isAdmin) return;
+e.preventDefault();
+const afterElement=getDragAfterElement(col,e.clientY);
+if(afterElement==null){
+col.appendChild(placeholder);
+}else{
+col.insertBefore(placeholder,afterElement);
+}
+});
 
-// Guardar nuevo personaje en la colección "nuevos"
-function addNewCharacter(character) {
-  const newCharacterContainer = document.getElementById("newCharactersContainer");
-  const newCharacterCard = document.createElement("div");
-  newCharacterCard.className = "newCharacterCard";
-  newCharacterCard.innerHTML = `
-    <img src="${character.image}" alt="${character.name}">
-    <span>${character.name}</span>
-  `;
+col.addEventListener("drop",e=>{
+if(!isAdmin) return;
+e.preventDefault();
+if(draggedElement){
+col.insertBefore(draggedElement,placeholder);
+placeholder.remove();
+saveData();
+}
+});
 
-  newCharacterCard.onclick = () => {
-    // Puedes implementar aquí la lógica para moverlo a la tier list
-    alert('¡Ahora puedes arrastrar este personaje!');
-  };
-
-  newCharacterContainer.appendChild(newCharacterCard);
-
-  // Agregar personaje a Firestore
-  tierRef.collection('newCharacters').add(character);
+table.appendChild(col);
+});
+});
 }
 
-// Construcción de la estructura de tiers
-function buildStructure() {
-  const container = document.getElementById("tiersContainer");
-  container.innerHTML = "";
-  tiers.forEach(t => {
-    container.innerHTML += `
-      <div class="section ${t}">${t.toUpperCase()}</div>
-      <div class="table" id="${t}"></div>
-    `;
-  });
+function getDragAfterElement(container,y){
+const elements=[...container.querySelectorAll(".row:not(.dragging)")];
+return elements.reduce((closest,child)=>{
+const box=child.getBoundingClientRect();
+const offset=y-box.top-box.height/2;
+if(offset<0 && offset>closest.offset){
+return{offset:offset,element:child};
+}else{
+return closest;
+}
+},{offset:Number.NEGATIVE_INFINITY}).element;
 }
 
-// Función para guardar datos en Firestore
-async function saveData() {
-  if (!isAdmin) return;
-  let data = {};
-  tiers.forEach(t => {
-    data[t] = {};
-    classes.forEach(cls => {
-      data[t][cls] = [];
-      document.querySelectorAll(`#${t} [data-cls='${cls}'] .row`)
-        .forEach(r => {
-          data[t][cls].push(r.querySelector("span").textContent);
-        });
-    });
-  });
-  await tierRef.set(data);
+function createRow(name){
+let r=document.createElement("div");
+r.className="row";
+r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
+
+if(isAdmin){
+r.draggable=true;
+r.addEventListener("dragstart",()=>{
+draggedElement=r;
+r.classList.add("dragging");
+});
+r.addEventListener("dragend",()=>{
+r.classList.remove("dragging");
+placeholder.remove();
+draggedElement=null;
+});
+}
+return r;
 }
 
-// Función para renderizar los datos de Firestore
-function render(data) {
-  currentData = data;
-  buildStructure();
-
-  tiers.forEach(t => {
-    if (data[t]) {
-      classes.forEach(cls => {
-        if (data[t][cls]) {
-          data[t][cls].forEach(char => {
-            document.querySelector(`#${t} [data-cls='${cls}']`)
-              .appendChild(createRow(char));
-          });
-        }
-      });
-    }
-  });
+async function saveData(){
+if(!isAdmin)return;
+let data={};
+tiers.forEach(t=>{
+data[t.id]={};
+classes.forEach(cls=>{
+data[t.id][cls]=[];
+document.querySelectorAll("#"+t.id+" [data-cls='"+cls+"'] .row")
+.forEach(r=>{
+data[t.id][cls].push(r.querySelector("span").textContent);
+});
+});
+});
+await tierRef.set(data);
 }
 
-// Función para crear las filas
-function createRow(name) {
-  let r = document.createElement("div");
-  r.className = "row";
-  r.innerHTML = `<img src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff'><span>${name}</span>`;
-  return r;
+function render(data){
+currentData=data;
+buildStructure();
+createTables();
+tiers.forEach(t=>{
+if(data[t.id]){
+classes.forEach(cls=>{
+if(Array.isArray(data[t.id][cls])){
+data[t.id][cls].forEach(name=>{
+document.querySelector("#"+t.id+" [data-cls='"+cls+"']")
+.appendChild(createRow(name));
+});
+}
+});
+}
+});
 }
 
-async function init() {
-  let snap = await tierRef.get();
-  if (!snap.exists) {
-    let baseData = {};
-    tiers.forEach(t => {
-      baseData[t] = {};
-      classes.forEach(cls => {
-        baseData[t][cls] = [];
-      });
-    });
-    await tierRef.set(baseData);
-    render(baseData);
-  } else {
-    render(snap.data());
-  }
-
-  tierRef.onSnapshot(doc => {
-    if (doc.exists) render(doc.data());
-  });
+async function init(){
+let snap=await tierRef.get();
+if(!snap.exists){
+let baseData={};
+tiers.forEach(t=>{
+baseData[t.id]={};
+classes.forEach(cls=>{
+baseData[t.id][cls]=[];
+});
+});
+await tierRef.set(baseData);
+render(baseData);
+}else{
+render(snap.data());
+}
+tierRef.onSnapshot(doc=>{
+if(doc.exists) render(doc.data());
+});
 }
 
+buildStructure();
 init();
 
 </script>
-
 </body>
 </html>
