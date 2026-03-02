@@ -16,22 +16,49 @@ body{font-family:Arial;margin:0;background:#f3f3f3}
 .row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black}
 .row img{width:28px;height:28px;margin-right:6px}
 .row span{color:red;text-decoration:underline;font-weight:bold;font-size:13px}
-.loginBtn{
+
+.topBar{
 position:fixed;
 top:10px;
 right:10px;
-padding:8px 12px;
+display:flex;
+align-items:center;
+gap:10px;
+z-index:1000;
+}
+
+.userInfo{
+display:flex;
+align-items:center;
+gap:8px;
+background:white;
+padding:6px 10px;
+border-radius:20px;
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+
+.userInfo img{
+width:28px;
+height:28px;
+border-radius:50%;
+}
+
+.button{
+padding:6px 10px;
 background:black;
 color:white;
 cursor:pointer;
-z-index:1000;
+border-radius:6px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="loginBtn" onclick="login()">Login</div>
+<div class="topBar">
+  <div id="loginBtn" class="button">Login</div>
+  <div id="userArea"></div>
+</div>
 
 <div class="section god">GOD TIER</div>
 <div class="table" id="god"></div>
@@ -61,25 +88,44 @@ const auth = firebase.auth();
 const tierRef = db.collection("tierData").doc("main");
 
 let isAdmin=false;
+let currentData=null;
 
-function login(){
-const provider = new firebase.auth.GoogleAuthProvider();
+const loginBtn=document.getElementById("loginBtn");
+const userArea=document.getElementById("userArea");
+
+loginBtn.onclick=()=>{
+const provider=new firebase.auth.GoogleAuthProvider();
 auth.signInWithPopup(provider);
+};
+
+function logout(){
+auth.signOut();
 }
 
 auth.onAuthStateChanged(user=>{
 if(user){
-console.log("Usuario logeado:", user.uid);
 isAdmin=true;
-render(currentData);
+
+loginBtn.style.display="none";
+
+userArea.innerHTML=`
+<div class="userInfo">
+  <img src="${user.photoURL}">
+  <span>${user.displayName}</span>
+  <div class="button" onclick="logout()">Cerrar sesión</div>
+</div>
+`;
+
 }else{
 isAdmin=false;
-render(currentData);
+loginBtn.style.display="block";
+userArea.innerHTML="";
 }
+
+if(currentData) render(currentData);
 });
 
 const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
-let currentData=null;
 
 function createTables(){
 ["god","semi"].forEach(tier=>{
@@ -112,7 +158,6 @@ function createRow(name){
 let r=document.createElement("div");
 r.className="row";
 r.id="r"+Math.random();
-
 r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
 
 if(isAdmin){
@@ -143,7 +188,6 @@ await tierRef.set(data);
 }
 
 function render(data){
-if(!data) return;
 currentData=data;
 createTables();
 Object.keys(data).forEach(tier=>{
