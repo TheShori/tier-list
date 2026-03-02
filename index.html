@@ -5,7 +5,6 @@
 <title>Tier List MCOC PRO</title>
 
 <style>
-
 @font-face {
   font-family: 'Hanzel';
   src: url('/tier-list/Hanzel-Normal-Font.5cb440da.ttf') format('truetype');
@@ -43,7 +42,6 @@ flex:1;
 border-right:3px solid black;
 background:white;
 min-height:200px;
-position:relative;
 }
 
 .column:last-child{border-right:none}
@@ -58,13 +56,9 @@ font-weight:bold;
 }
 
 .row{
-display:flex;
-align-items:center;
 padding:6px;
 border-bottom:2px solid black;
-background:white;
 cursor:pointer;
-transition:all 0.15s ease;
 }
 
 .row span{
@@ -72,21 +66,6 @@ color:black;
 font-weight:normal;
 font-size:13px;
 }
-
-.row img{
-width:28px;
-height:28px;
-margin-right:6px;
-}
-
-.placeholder{
-height:40px;
-background:rgba(0,0,0,0.1);
-border:2px dashed #999;
-margin:4px 0;
-}
-
-/* 🔥 MODAL */
 
 .modalOverlay{
 position:fixed;
@@ -115,7 +94,6 @@ gap:20px;
 width:180px;
 height:180px;
 object-fit:cover;
-border-radius:6px;
 background:#eee;
 }
 
@@ -136,13 +114,6 @@ font-family:inherit;
 .modal textarea{
 height:120px;
 resize:none;
-}
-
-.modalButtons{
-display:flex;
-justify-content:flex-end;
-gap:10px;
-margin-top:10px;
 }
 
 .button{
@@ -168,20 +139,18 @@ z-index:1000;
 
 <div class="topBar">
   <div id="loginBtn" class="button">Login</div>
-  <div id="userArea"></div>
 </div>
 
 <div id="tiersContainer"></div>
 
-<!-- 🔥 MODAL -->
 <div class="modalOverlay" id="modalOverlay">
   <div class="modal">
     <img id="modalImage">
     <div class="modalContent">
-      <input id="modalName" placeholder="Nombre del personaje">
-      <input id="modalImageUrl" placeholder="URL de la imagen">
-      <textarea id="modalInfo" placeholder="Información importante..."></textarea>
-      <div class="modalButtons">
+      <input id="modalName">
+      <input id="modalImageUrl">
+      <textarea id="modalInfo"></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
         <div class="button" onclick="closeModal()">Cerrar</div>
         <div class="button" id="saveBtn">Guardar</div>
       </div>
@@ -216,34 +185,29 @@ let isAdmin=false;
 let currentData=null;
 let selectedCharacter=null;
 
-const tiers=[
-{id:"god",label:"GOD TIER",class:"god"},
-{id:"semi",label:"SEMI-GOD TIER",class:"semi"},
-{id:"usables",label:"USABLES TIER",class:"usables"},
-{id:"ocasionales",label:"OCASIONALES TIER",class:"ocasionales"},
-{id:"meme",label:"MEME TIER",class:"meme"}
-];
-
+const tiers=["god","semi","usables","ocasionales","meme"];
 const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
 auth.onAuthStateChanged(user=>{
-isAdmin=user && user.uid===OWNER_UID;
+  isAdmin=user && user.uid===OWNER_UID;
 });
+
+document.getElementById("loginBtn").onclick=()=>{
+  const provider=new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
+};
 
 function buildStructure(){
 const container=document.getElementById("tiersContainer");
 container.innerHTML="";
 tiers.forEach(t=>{
-container.innerHTML+=`
-<div class="section ${t.class}">${t.label}</div>
-<div class="table" id="${t.id}"></div>
-`;
+container.innerHTML+=`<div class="section">${t.toUpperCase()}</div><div class="table" id="${t}"></div>`;
 });
 }
 
 function createTables(){
 tiers.forEach(t=>{
-const table=document.getElementById(t.id);
+const table=document.getElementById(t);
 table.innerHTML="";
 classes.forEach(cls=>{
 let col=document.createElement("div");
@@ -255,13 +219,19 @@ table.appendChild(col);
 });
 }
 
+function normalizeCharacter(char){
+if(typeof char==="string"){
+return {name:char,image:"",info:""};
+}
+return char;
+}
+
 function createRow(character){
+character=normalizeCharacter(character);
 let r=document.createElement("div");
 r.className="row";
 r.innerHTML="<span>"+character.name+"</span>";
-
 r.onclick=()=>openModal(character);
-
 return r;
 }
 
@@ -294,36 +264,28 @@ await tierRef.set(currentData);
 closeModal();
 };
 
-async function render(data){
+function render(data){
 currentData=data;
 buildStructure();
 createTables();
 
 tiers.forEach(t=>{
+if(data[t]){
 classes.forEach(cls=>{
-if(data[t.id] && data[t.id][cls]){
-data[t.id][cls].forEach(char=>{
-document.querySelector("#"+t.id+" [data-cls='"+cls+"']")
+if(data[t][cls]){
+data[t][cls].forEach(char=>{
+document.querySelector("#"+t+" [data-cls='"+cls+"']")
 .appendChild(createRow(char));
 });
 }
 });
+}
 });
 }
 
 async function init(){
 let snap=await tierRef.get();
-if(!snap.exists){
-let baseData={};
-tiers.forEach(t=>{
-baseData[t.id]={};
-classes.forEach(cls=>{
-baseData[t.id][cls]=[];
-});
-});
-await tierRef.set(baseData);
-render(baseData);
-}else{
+if(snap.exists){
 render(snap.data());
 }
 tierRef.onSnapshot(doc=>{
