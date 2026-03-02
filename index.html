@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Tier List MCOC PRO</title>
-
 <style>
-
 /* 🔥 FUENTE PERSONALIZADA */
 @font-face {
   font-family: 'Hanzel';
@@ -143,7 +141,6 @@ background:rgba(0,0,0,0.1);
 border:2px dashed #999;
 margin:4px 0;
 }
-
 </style>
 </head>
 <body>
@@ -155,12 +152,15 @@ margin:4px 0;
 
 <div id="tiersContainer"></div>
 
+<!-- Botón para cargar nueva imagen -->
+<input type="file" id="uploadImage" accept="image/*" style="display:none;" />
+<button onclick="document.getElementById('uploadImage').click()">Subir nueva imagen</button>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
 <script>
-
 const firebaseConfig = {
   apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
   authDomain: "tier-list-mcoc.firebaseapp.com",
@@ -197,7 +197,7 @@ placeholder.className="placeholder";
 const loginBtn=document.getElementById("loginBtn");
 const userArea=document.getElementById("userArea");
 
-loginBtn.onclick=()=>{
+loginBtn.onclick=()=>{ 
 const provider=new firebase.auth.GoogleAuthProvider();
 auth.signInWithPopup(provider);
 };
@@ -208,7 +208,7 @@ auth.onAuthStateChanged(user=>{
 if(user){
 isAdmin=(user.uid===OWNER_UID);
 loginBtn.style.display="none";
-userArea.innerHTML=`
+userArea.innerHTML=` 
 <div class="userInfo">
 <img src="${user.photoURL}">
 <span>${user.displayName}</span>
@@ -223,142 +223,76 @@ userArea.innerHTML="";
 if(currentData) render(currentData);
 });
 
-function buildStructure(){
-const container=document.getElementById("tiersContainer");
-container.innerHTML="";
-tiers.forEach(t=>{
-container.innerHTML+=`
-<div class="section ${t.class}">${t.label}</div>
-<div class="table" id="${t.id}"></div>
-`;
-});
-}
+document.getElementById("uploadImage").addEventListener("change", async (event) => {
+    if (event.target.files.length > 0) {
+        const file = event.target.files[0];
+        const storageRef = firebase.storage().ref("championImages/" + file.name); 
+        await storageRef.put(file); 
 
-function createTables(){
-tiers.forEach(t=>{
-const table=document.getElementById(t.id);
-table.innerHTML="";
-classes.forEach(cls=>{
-let col=document.createElement("div");
-col.className="column";
-col.dataset.cls=cls;
-col.innerHTML="<div class='header'>"+cls+"</div>";
+        const fileURL = await storageRef.getDownloadURL(); 
 
-col.addEventListener("dragover",e=>{
-if(!isAdmin) return;
-e.preventDefault();
-const afterElement=getDragAfterElement(col,e.clientY);
-if(afterElement==null){
-col.appendChild(placeholder);
-}else{
-col.insertBefore(placeholder,afterElement);
-}
+        updateChampionProfileImage(championId, fileURL); 
+    }
 });
 
-col.addEventListener("drop",e=>{
-if(!isAdmin) return;
-e.preventDefault();
-if(draggedElement){
-col.insertBefore(draggedElement,placeholder);
-placeholder.remove();
-saveData();
-}
-});
-
-table.appendChild(col);
-});
-});
+function updateChampionProfileImage(championId, imageURL) {
+    const championRow = document.querySelector(`#${championId} .row img`); 
+    if (championRow) {
+        championRow.src = imageURL; 
+    }
+    saveChampionImageToDatabase(championId, imageURL); 
 }
 
-function getDragAfterElement(container,y){
-const elements=[...container.querySelectorAll(".row:not(.dragging)")];
-return elements.reduce((closest,child)=>{
-const box=child.getBoundingClientRect();
-const offset=y-box.top-box.height/2;
-if(offset<0 && offset>closest.offset){
-return{offset:offset,element:child};
-}else{
-return closest;
-}
-},{offset:Number.NEGATIVE_INFINITY}).element;
+async function saveChampionImageToDatabase(championId, imageURL) {
+    const championRef = db.collection("champions").doc(championId);
+    await championRef.update({
+        profileImage: imageURL  
+    });
 }
 
-function createRow(name){
-let r=document.createElement("div");
-r.className="row";
-r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
+function createRow(name, imageUrl) {
+    let r = document.createElement("div");
+    r.className = "row";
+    r.innerHTML = `<img src="${imageUrl}" alt="${name}" /> <span>${name}</span>`;
 
-if(isAdmin){
-r.draggable=true;
-r.addEventListener("dragstart",()=>{
-draggedElement=r;
-r.classList.add("dragging");
-});
-r.addEventListener("dragend",()=>{
-r.classList.remove("dragging");
-placeholder.remove();
-draggedElement=null;
-});
-}
-return r;
-}
-
-async function saveData(){
-if(!isAdmin)return;
-let data={};
-tiers.forEach(t=>{
-data[t.id]={};
-classes.forEach(cls=>{
-data[t.id][cls]=[];
-document.querySelectorAll("#"+t.id+" [data-cls='"+cls+"'] .row")
-.forEach(r=>{
-data[t.id][cls].push(r.querySelector("span").textContent);
-});
-});
-});
-await tierRef.set(data);
+    if (isAdmin) {
+        r.draggable = true;
+        r.addEventListener("dragstart", () => {
+            draggedElement = r;
+            r.classList.add("dragging");
+        });
+        r.addEventListener("dragend", () => {
+            r.classList.remove("dragging");
+            placeholder.remove();
+            draggedElement = null;
+        });
+    }
+    return r;
 }
 
-function render(data){
-currentData=data;
-buildStructure();
-createTables();
-tiers.forEach(t=>{
-if(data[t.id]){
-classes.forEach(cls=>{
-if(Array.isArray(data[t.id][cls])){
-data[t.id][cls].forEach(name=>{
-document.querySelector("#"+t.id+" [data-cls='"+cls+"']")
-.appendChild(createRow(name));
-});
+function render(data) {
+    currentData = data;
+    buildStructure();
+    createTables();
+    tiers.forEach((t) => {
+        if (data[t.id]) {
+            classes.forEach((cls) => {
+                if (Array.isArray(data[t.id][cls])) {
+                    data[t.id][cls].forEach(async (championId) => {
+                        const championRef = db.collection("champions").doc(championId);
+                        const doc = await championRef.get();
+                        const championData = doc.data();
+                        if (championData && championData.profileImage) {
+                            document.querySelector(`#${t.id} [data-cls='${cls}']`).appendChild(
+                                createRow(championId, championData.profileImage)
+                            );
+                        }
+                    });
+                }
+            });
+        }
+    });
 }
-});
-}
-});
-}
-
-async function init(){
-let snap=await tierRef.get();
-if(!snap.exists){
-let baseData={};
-tiers.forEach(t=>{
-baseData[t.id]={};
-classes.forEach(cls=>{
-baseData[t.id][cls]=[];
-});
-});
-await tierRef.set(baseData);
-render(baseData);
-}else{
-render(snap.data());
-}
-tierRef.onSnapshot(doc=>{
-if(doc.exists) render(doc.data());
-});
-}
-
-buildStructure();
-init();
 
 </script>
 </body>
