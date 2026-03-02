@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Tier List MCOC</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#f3f3f3;
+}
+
+.section-title{
+    text-align:center;
+    font-size:26px;
+    font-weight:bold;
+    padding:14px;
+    border:3px solid black;
+}
+
+.god{ background:#d85c5c; }
+.semi{ background:#e6a764; }
+
+.table{
+    display:flex;
+    border-left:3px solid black;
+    border-right:3px solid black;
+    margin-bottom:40px;
+}
+
+.column{
+    flex:1;
+    border-right:3px solid black;
+    background:white;
+    min-height:250px;
+}
+
+.column:last-child{
+    border-right:none;
+}
+
+.column-header{
+    background:#444;
+    color:white;
+    font-weight:bold;
+    text-align:center;
+    padding:8px;
+    border-bottom:3px solid black;
+}
+
+.row{
+    display:flex;
+    align-items:center;
+    padding:5px;
+    border-bottom:2px solid black;
+    cursor:grab;
+}
+
+.row img{
+    width:30px;
+    height:30px;
+    margin-right:6px;
+    border-radius:4px;
+}
+
+.row span{
+    color:red;
+    text-decoration:underline;
+    font-weight:bold;
+    font-size:13px;
+}
+
+.controls{
+    text-align:center;
+    margin:15px;
+    display:none;
+}
+
+button,input,select{
+    padding:6px;
+    margin:5px;
+}
+</style>
+</head>
+
+<body>
+
+<div style="text-align:center;margin:10px;">
+<button onclick="activateEdit()">Activar modo edición</button>
+</div>
+
+<div class="controls" id="controls">
+<input type="text" id="nameInput" placeholder="Nombre del campeón">
+<select id="tierSelect">
+<option value="god">GOD TIER</option>
+<option value="semi">SEMI-GOD TIER</option>
+</select>
+<select id="classSelect">
+<option value="MUTANTES">Mutantes</option>
+<option value="HÁBILES">Hábiles</option>
+<option value="CIENTÍFICOS">Científicos</option>
+<option value="MÍSTICOS">Místicos</option>
+<option value="CÓSMICOS">Cósmicos</option>
+<option value="TECNOS">Tecnos</option>
+</select>
+<button onclick="addCharacter()">Añadir</button>
+<button onclick="saveData()">Guardar</button>
+</div>
+
+<div class="section-title god">GOD TIER</div>
+<div class="table" id="godTable"></div>
+
+<div class="section-title semi">SEMI-GOD TIER</div>
+<div class="table" id="semiTable"></div>
+
+<script>
+const PASSWORD="1234";
+const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
+let editMode=false;
+
+/* PERSONAJES INICIALES */
+const defaultData={
+god:{
+MUTANTES:["Magneto","Onslaught","Domino"],
+HÁBILES:["Shang Chi","Kate Bishop"],
+CIENTÍFICOS:["Hulk","Blue Marvel"],
+MÍSTICOS:["Doctor Doom"],
+CÓSMICOS:["Hercules"],
+TECNOS:["Shuri"]
+},
+semi:{
+MUTANTES:["Bishop","Profesor X"],
+HÁBILES:["Black Cat"],
+CIENTÍFICOS:["Mister Negative"],
+MÍSTICOS:["Wiccan"],
+CÓSMICOS:["Hyperion"],
+TECNOS:["Guardian"]
+}
+};
+
+function createTables(){
+["godTable","semiTable"].forEach(id=>{
+const table=document.getElementById(id);
+classes.forEach(cls=>{
+    const col=document.createElement("div");
+    col.className="column";
+    col.dataset.class=cls;
+    col.dataset.table=id;
+
+    const header=document.createElement("div");
+    header.className="column-header";
+    header.textContent=cls;
+    col.appendChild(header);
+
+    col.ondragover=e=>e.preventDefault();
+    col.ondrop=e=>{
+        if(!editMode) return;
+        const draggedId=e.dataTransfer.getData("text");
+        col.appendChild(document.getElementById(draggedId));
+        autoSave();
+    };
+
+    table.appendChild(col);
+});
+});
+}
+
+function createRow(name){
+const row=document.createElement("div");
+row.className="row";
+row.draggable=true;
+row.id="row-"+Date.now()+Math.random();
+
+const img=`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
+
+row.innerHTML=`<img src="${img}"><span>${name}</span>`;
+
+row.ondragstart=e=>{
+if(!editMode) return;
+e.dataTransfer.setData("text",row.id);
+};
+
+return row;
+}
+
+function loadData(data){
+Object.keys(data).forEach(tier=>{
+const tableId=tier==="god"?"godTable":"semiTable";
+classes.forEach(cls=>{
+if(data[tier][cls]){
+data[tier][cls].forEach(name=>{
+document.querySelector(`#${tableId} [data-class='${cls}']`)
+.appendChild(createRow(name));
+});
+}
+});
+});
+}
+
+function autoSave(){
+const data={god:{},semi:{}};
+["godTable","semiTable"].forEach(id=>{
+const tierName=id==="godTable"?"god":"semi";
+classes.forEach(cls=>{
+data[tierName][cls]=[];
+document.querySelectorAll(`#${id} [data-class='${cls}'] .row`)
+.forEach(r=>{
+data[tierName][cls].push(r.querySelector("span").textContent);
+});
+});
+});
+localStorage.setItem("tierData",JSON.stringify(data));
+}
+
+function saveData(){
+autoSave();
+alert("Guardado correctamente");
+}
+
+function activateEdit(){
+const pass=prompt("Contraseña:");
+if(pass===PASSWORD){
+editMode=true;
+document.getElementById("controls").style.display="block";
+alert("Modo edición activado");
+}else{
+alert("Incorrecta");
+}
+}
+
+function addCharacter(){
+const name=document.getElementById("nameInput").value;
+const tier=document.getElementById("tierSelect").value;
+const cls=document.getElementById("classSelect").value;
+if(!name) return;
+
+const tableId=tier==="god"?"godTable":"semiTable";
+document.querySelector(`#${tableId} [data-class='${cls}']`)
+.appendChild(createRow(name));
+
+document.getElementById("nameInput").value="";
+autoSave();
+}
+
+createTables();
+
+const saved=localStorage.getItem("tierData");
+if(saved){
+loadData(JSON.parse(saved));
+}else{
+loadData(defaultData);
+}
+</script>
+
+</body>
+</html>
