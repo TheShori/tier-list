@@ -2,12 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tier List MCOC</title>
+<title>Tier List MCOC PRO</title>
 
 <style>
+
+/* 🔥 FUENTE PERSONALIZADA */
 @font-face {
   font-family: 'Hanzel';
   src: url('/tier-list/Hanzel-Normal-Font.5cb440da.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
 
 body{
@@ -16,7 +20,6 @@ body{
   background:#f3f3f3;
 }
 
-/* COLORES */
 .section{
 padding:14px;
 text-align:center;
@@ -25,11 +28,11 @@ font-size:24px;
 border:3px solid black;
 }
 
-.god{background:#d85c5c;}
-.semi{background:#e6a764;}
-.usables{background:#f1d35c;}
-.ocasionales{background:#5fa94e;}
-.meme{background:#3f74c8;}
+.god{background:#d85c5c}
+.semi{background:#e6a764}
+.usables{background:#f1d35c}
+.ocasionales{background:#5fa94e}
+.meme{background:#3f74c8}
 
 .table{
 display:flex;
@@ -43,9 +46,10 @@ flex:1;
 border-right:3px solid black;
 background:white;
 min-height:200px;
+position:relative;
 }
 
-.column:last-child{border-right:none;}
+.column:last-child{border-right:none}
 
 .header{
 background:#444;
@@ -59,31 +63,30 @@ font-weight:bold;
 .row{
 display:flex;
 align-items:center;
-gap:6px;
 padding:6px;
 border-bottom:2px solid black;
-cursor:pointer;
-transition:all .15s ease;
+background:white;
+transition:all 0.15s ease;
 }
 
 .row.dragging{
-opacity:.4;
+opacity:0.4;
 }
 
 .row img{
 width:28px;
 height:28px;
-object-fit:cover;
-border-radius:4px;
+margin-right:6px;
 }
 
+/* 🔥 AQUÍ ESTÁ EL CAMBIO */
 .row span{
-color:black;
-font-weight:normal;
+color:black;        /* negro */
+text-decoration:none; /* sin subrayado */
+font-weight:normal;   /* sin negrita */
 font-size:13px;
 }
 
-/* LOGIN */
 .topBar{
 position:fixed;
 top:10px;
@@ -94,94 +97,63 @@ gap:10px;
 z-index:1000;
 }
 
+.userInfo{
+display:flex;
+align-items:center;
+gap:8px;
+background:white;
+padding:6px 10px;
+border-radius:20px;
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+
+.userInfo img{
+width:28px;
+height:28px;
+border-radius:50%;
+}
+
 .button{
-padding:6px 12px;
+padding:6px 10px;
 background:black;
 color:white;
 cursor:pointer;
 border-radius:6px;
 }
 
-/* MODAL */
-.modalOverlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.6);
-display:none;
-align-items:center;
-justify-content:center;
-z-index:2000;
+.adminBadge{
+background:#2ecc71;
+color:white;
+padding:4px 8px;
+border-radius:12px;
+font-size:12px;
 }
 
-.modal{
-background:white;
-width:600px;
-max-width:95%;
-padding:20px;
-border-radius:8px;
-display:flex;
-gap:20px;
-}
-
-.modal img{
-width:180px;
-height:180px;
-object-fit:cover;
-background:#eee;
-}
-
-.modalContent{
-flex:1;
-display:flex;
-flex-direction:column;
-gap:10px;
-}
-
-.modal input,
-.modal textarea{
-width:100%;
-padding:6px;
-font-family:inherit;
-}
-
-.modal textarea{
-height:120px;
-resize:none;
+.viewerBadge{
+background:#999;
+color:white;
+padding:4px 8px;
+border-radius:12px;
+font-size:12px;
 }
 
 .placeholder{
-height:36px;
+height:40px;
 background:rgba(0,0,0,0.1);
 border:2px dashed #999;
 margin:4px 0;
 }
+
 </style>
 </head>
 <body>
 
 <div class="topBar">
   <div id="loginBtn" class="button">Login</div>
+  <div id="userArea"></div>
 </div>
 
 <div id="tiersContainer"></div>
-
-<div class="modalOverlay" id="modalOverlay">
-  <div class="modal">
-    <img id="modalImage">
-    <div class="modalContent">
-      <input id="modalName" placeholder="Nombre">
-      <input id="modalImageUrl" placeholder="URL imagen">
-      <textarea id="modalInfo" placeholder="Información..."></textarea>
-      <div style="display:flex;justify-content:flex-end;gap:10px;">
-        <div class="button" onclick="closeModal()">Cerrar</div>
-        <div class="button" id="saveBtn">Guardar</div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -206,13 +178,6 @@ const tierRef = db.collection("tierData").doc("main");
 
 const OWNER_UID="HizrEHr3BjgUTyJZsSPoei0gHrA2";
 
-let isAdmin=false;
-let currentData=null;
-let dragged=null;
-let placeholder=document.createElement("div");
-placeholder.className="placeholder";
-let selectedCharacter=null;
-
 const tiers=[
 {id:"god",label:"GOD TIER",class:"god"},
 {id:"semi",label:"SEMI-GOD TIER",class:"semi"},
@@ -223,56 +188,91 @@ const tiers=[
 
 const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-document.getElementById("loginBtn").onclick=()=>{
+let isAdmin=false;
+let currentData=null;
+let draggedElement=null;
+let placeholder=document.createElement("div");
+placeholder.className="placeholder";
+
+const loginBtn=document.getElementById("loginBtn");
+const userArea=document.getElementById("userArea");
+
+loginBtn.onclick=()=>{
 const provider=new firebase.auth.GoogleAuthProvider();
 auth.signInWithPopup(provider);
 };
 
+function logout(){auth.signOut();}
+
 auth.onAuthStateChanged(user=>{
-isAdmin=user && user.uid===OWNER_UID;
+if(user){
+isAdmin=(user.uid===OWNER_UID);
+loginBtn.style.display="none";
+userArea.innerHTML=`
+<div class="userInfo">
+<img src="${user.photoURL}">
+<span>${user.displayName}</span>
+${isAdmin?'<div class="adminBadge">ADMIN</div>':'<div class="viewerBadge">VIEWER</div>'}
+<div class="button" onclick="logout()">Cerrar sesión</div>
+</div>`;
+}else{
+isAdmin=false;
+loginBtn.style.display="block";
+userArea.innerHTML="";
+}
+if(currentData) render(currentData);
 });
 
-function normalize(char){
-if(typeof char==="string") return {name:char,image:"",info:""};
-return char;
-}
-
-function build(){
+function buildStructure(){
 const container=document.getElementById("tiersContainer");
 container.innerHTML="";
 tiers.forEach(t=>{
-container.innerHTML+=`<div class="section ${t.class}">${t.label}</div><div class="table" id="${t.id}"></div>`;
+container.innerHTML+=`
+<div class="section ${t.class}">${t.label}</div>
+<div class="table" id="${t.id}"></div>
+`;
+});
+}
+
+function createTables(){
+tiers.forEach(t=>{
+const table=document.getElementById(t.id);
+table.innerHTML="";
 classes.forEach(cls=>{
 let col=document.createElement("div");
 col.className="column";
 col.dataset.cls=cls;
 col.innerHTML="<div class='header'>"+cls+"</div>";
-document.getElementById(t.id).appendChild(col);
 
 col.addEventListener("dragover",e=>{
 if(!isAdmin) return;
 e.preventDefault();
-const after=getAfter(col,e.clientY);
-if(after==null) col.appendChild(placeholder);
-else col.insertBefore(placeholder,after);
+const afterElement=getDragAfterElement(col,e.clientY);
+if(afterElement==null){
+col.appendChild(placeholder);
+}else{
+col.insertBefore(placeholder,afterElement);
+}
 });
 
 col.addEventListener("drop",e=>{
 if(!isAdmin) return;
 e.preventDefault();
-if(dragged){
-col.insertBefore(dragged,placeholder);
+if(draggedElement){
+col.insertBefore(draggedElement,placeholder);
 placeholder.remove();
-save();
+saveData();
 }
 });
+
+table.appendChild(col);
 });
 });
 }
 
-function getAfter(container,y){
-const els=[...container.querySelectorAll(".row:not(.dragging)")];
-return els.reduce((closest,child)=>{
+function getDragAfterElement(container,y){
+const elements=[...container.querySelectorAll(".row:not(.dragging)")];
+return elements.reduce((closest,child)=>{
 const box=child.getBoundingClientRect();
 const offset=y-box.top-box.height/2;
 if(offset<0 && offset>closest.offset){
@@ -283,55 +283,28 @@ return closest;
 },{offset:Number.NEGATIVE_INFINITY}).element;
 }
 
-function createRow(char){
-char=normalize(char);
+function createRow(name){
 let r=document.createElement("div");
 r.className="row";
-r.innerHTML=`<img src="${char.image||'https://ui-avatars.com/api/?name='+encodeURIComponent(char.name)}"><span>${char.name}</span>`;
-r.onclick=()=>openModal(char);
+r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
 
 if(isAdmin){
 r.draggable=true;
 r.addEventListener("dragstart",()=>{
-dragged=r;
+draggedElement=r;
 r.classList.add("dragging");
 });
 r.addEventListener("dragend",()=>{
 r.classList.remove("dragging");
 placeholder.remove();
-dragged=null;
+draggedElement=null;
 });
 }
 return r;
 }
 
-function openModal(char){
-selectedCharacter=char;
-document.getElementById("modalOverlay").style.display="flex";
-document.getElementById("modalName").value=char.name||"";
-document.getElementById("modalImageUrl").value=char.image||"";
-document.getElementById("modalInfo").value=char.info||"";
-document.getElementById("modalImage").src=char.image||"";
-}
-
-function closeModal(){
-document.getElementById("modalOverlay").style.display="none";
-}
-
-document.getElementById("modalImageUrl").addEventListener("input",e=>{
-document.getElementById("modalImage").src=e.target.value;
-});
-
-document.getElementById("saveBtn").onclick=async()=>{
+async function saveData(){
 if(!isAdmin)return;
-selectedCharacter.name=document.getElementById("modalName").value;
-selectedCharacter.image=document.getElementById("modalImageUrl").value;
-selectedCharacter.info=document.getElementById("modalInfo").value;
-await save();
-closeModal();
-};
-
-async function save(){
 let data={};
 tiers.forEach(t=>{
 data[t.id]={};
@@ -339,38 +312,24 @@ classes.forEach(cls=>{
 data[t.id][cls]=[];
 document.querySelectorAll("#"+t.id+" [data-cls='"+cls+"'] .row")
 .forEach(r=>{
-let name=r.querySelector("span").textContent;
-let char=findChar(name);
-data[t.id][cls].push(char);
+data[t.id][cls].push(r.querySelector("span").textContent);
 });
 });
 });
-currentData=data;
 await tierRef.set(data);
-}
-
-function findChar(name){
-for(let t in currentData){
-for(let c in currentData[t]){
-for(let char of currentData[t][c]){
-char=normalize(char);
-if(char.name===name) return char;
-}
-}
-}
-return {name:name,image:"",info:""};
 }
 
 function render(data){
 currentData=data;
-build();
+buildStructure();
+createTables();
 tiers.forEach(t=>{
 if(data[t.id]){
 classes.forEach(cls=>{
-if(data[t.id][cls]){
-data[t.id][cls].forEach(char=>{
+if(Array.isArray(data[t.id][cls])){
+data[t.id][cls].forEach(name=>{
 document.querySelector("#"+t.id+" [data-cls='"+cls+"']")
-.appendChild(createRow(char));
+.appendChild(createRow(name));
 });
 }
 });
@@ -380,12 +339,25 @@ document.querySelector("#"+t.id+" [data-cls='"+cls+"']")
 
 async function init(){
 let snap=await tierRef.get();
-if(snap.exists) render(snap.data());
+if(!snap.exists){
+let baseData={};
+tiers.forEach(t=>{
+baseData[t.id]={};
+classes.forEach(cls=>{
+baseData[t.id][cls]=[];
+});
+});
+await tierRef.set(baseData);
+render(baseData);
+}else{
+render(snap.data());
+}
 tierRef.onSnapshot(doc=>{
 if(doc.exists) render(doc.data());
 });
 }
 
+buildStructure();
 init();
 
 </script>
