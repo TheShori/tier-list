@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tier List MCOC Online</title>
+<title>Tier List RESET</title>
 
 <style>
 body{font-family:Arial;margin:0;background:#f3f3f3}
@@ -13,7 +13,7 @@ body{font-family:Arial;margin:0;background:#f3f3f3}
 .column{flex:1;border-right:3px solid black;background:white;min-height:220px}
 .column:last-child{border-right:none}
 .header{background:#444;color:white;text-align:center;padding:8px;border-bottom:3px solid black;font-weight:bold}
-.row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black;cursor:grab}
+.row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black}
 .row img{width:28px;height:28px;margin-right:6px}
 .row span{color:red;text-decoration:underline;font-weight:bold;font-size:13px}
 </style>
@@ -27,15 +27,11 @@ body{font-family:Arial;margin:0;background:#f3f3f3}
 <div class="section semi">SEMI-GOD TIER</div>
 <div class="table" id="semi"></div>
 
-<!-- Firebase compat (SIN modules) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script>
 
-console.log("🔥 SCRIPT CARGADO");
-
-/* TU CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
   authDomain: "tier-list-mcoc.firebaseapp.com",
@@ -80,15 +76,6 @@ let col=document.createElement("div");
 col.className="column";
 col.dataset.cls=cls;
 col.innerHTML="<div class='header'>"+cls+"</div>";
-col.ondragover=e=>e.preventDefault();
-col.ondrop=e=>{
-let id=e.dataTransfer.getData("id");
-let dragged=document.getElementById(id);
-if(dragged){
-col.appendChild(dragged);
-saveData();
-}
-};
 table.appendChild(col);
 });
 });
@@ -97,31 +84,15 @@ table.appendChild(col);
 function createRow(name){
 let r=document.createElement("div");
 r.className="row";
-r.draggable=true;
-r.id="r"+Math.random();
 r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
-r.ondragstart=e=>{e.dataTransfer.setData("id",r.id);};
 return r;
-}
-
-async function saveData(){
-let data={god:{},semi:{}};
-["god","semi"].forEach(tier=>{
-classes.forEach(cls=>{
-data[tier][cls]=[];
-document.querySelectorAll("#"+tier+" [data-cls='"+cls+"'] .row")
-.forEach(r=>{data[tier][cls].push(r.querySelector("span").textContent);});
-});
-});
-await tierRef.set(data);
-console.log("💾 Guardado en Firebase");
 }
 
 function render(data){
 createTables();
 Object.keys(data).forEach(tier=>{
 classes.forEach(cls=>{
-if(data[tier][cls]){
+if(Array.isArray(data[tier][cls])){
 data[tier][cls].forEach(name=>{
 document.querySelector("#"+tier+" [data-cls='"+cls+"']")
 .appendChild(createRow(name));
@@ -131,36 +102,15 @@ document.querySelector("#"+tier+" [data-cls='"+cls+"']")
 });
 }
 
-async function init(){
-createTables();
-
-try{
-let snap=await tierRef.get();
-
-if(!snap.exists){
-console.log("📦 Creando documento inicial");
+async function forceReset(){
+console.log("🔥 REINICIANDO DOCUMENTO FIREBASE");
 await tierRef.set(defaultData);
 render(defaultData);
-}else{
-render(snap.data());
 }
 
-tierRef.onSnapshot(doc=>{
-if(doc.exists){
-render(doc.data());
-}
-});
-
-}catch(e){
-console.error("❌ ERROR FIREBASE:",e);
-alert("Error Firebase. Mira F12.");
-}
-}
-
-init();
+forceReset();
 
 </script>
 
 </body>
 </html>
-
