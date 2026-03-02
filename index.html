@@ -5,22 +5,71 @@
 <title>Tier List MCOC PRO</title>
 
 <style>
-body{font-family:Arial;margin:0;background:#f3f3f3}
-.section{padding:14px;text-align:center;font-weight:bold;font-size:24px;border:3px solid black}
+body{
+font-family:Arial;
+margin:0;
+background:#f3f3f3;
+}
+
+.section{
+padding:14px;
+text-align:center;
+font-weight:bold;
+font-size:24px;
+border:3px solid black;
+}
+
 .god{background:#d85c5c}
 .semi{background:#e6a764}
 .usables{background:#f1d35c}
 .ocasionales{background:#5fa94e}
 .meme{background:#3f74c8}
 
-.table{display:flex;border-left:3px solid black;border-right:3px solid black;margin-bottom:40px}
-.column{flex:1;border-right:3px solid black;background:white;min-height:200px}
-.column:last-child{border-right:none}
-.header{background:#444;color:white;text-align:center;padding:8px;border-bottom:3px solid black;font-weight:bold}
+.table{
+display:flex;
+border-left:3px solid black;
+border-right:3px solid black;
+margin-bottom:40px;
+}
 
-.row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black}
-.row img{width:28px;height:28px;margin-right:6px}
-.row span{color:red;text-decoration:underline;font-weight:bold;font-size:13px}
+.column{
+flex:1;
+border-right:3px solid black;
+background:white;
+min-height:200px;
+}
+
+.column:last-child{border-right:none}
+
+.header{
+background:#444;
+color:white;
+text-align:center;
+padding:8px;
+border-bottom:3px solid black;
+font-weight:bold;
+}
+
+.row{
+display:flex;
+align-items:center;
+padding:4px;
+border-bottom:2px solid black;
+background:white;
+}
+
+.row img{
+width:28px;
+height:28px;
+margin-right:6px;
+}
+
+.row span{
+color:red;
+text-decoration:underline;
+font-weight:bold;
+font-size:13px;
+}
 
 .topBar{
 position:fixed;
@@ -103,8 +152,7 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 const tierRef = db.collection("tierData").doc("main");
 
-/* 🔒 TU UID ADMIN FIJO */
-const OWNER_UID = "HizrEHr3BjgUTyJZsSPoei0gHrA2";
+const OWNER_UID="HizrEHr3BjgUTyJZsSPoei0gHrA2";
 
 const tiers=[
 {id:"god",label:"GOD TIER",class:"god"},
@@ -239,8 +287,24 @@ document.querySelector("#"+t.id+" [data-cls='"+cls+"']")
 });
 }
 
-async function init(){
+/* 🔥 AUTO SCROLL MIENTRAS ARRASTRAS */
 
+document.addEventListener("dragover", e=>{
+if(!isAdmin) return;
+
+const scrollZone=100;
+const scrollSpeed=15;
+
+if(e.clientY < scrollZone){
+window.scrollBy(0,-scrollSpeed);
+}
+
+if(e.clientY > window.innerHeight - scrollZone){
+window.scrollBy(0,scrollSpeed);
+}
+});
+
+async function init(){
 let snap=await tierRef.get();
 
 if(!snap.exists){
@@ -260,13 +324,11 @@ render(snap.data());
 tierRef.onSnapshot(doc=>{
 if(doc.exists) render(doc.data());
 });
-
 }
 
 buildStructure();
 init();
 
 </script>
-
 </body>
 </html>
