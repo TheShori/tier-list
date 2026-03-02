@@ -2,76 +2,22 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tier List MCOC</title>
+<title>Tier List Online</title>
 
 <style>
-body{
-  font-family:Arial, sans-serif;
-  margin:0;
-  background:#f3f3f3;
-}
-
-.section{
-  padding:14px;
-  text-align:center;
-  font-weight:bold;
-  font-size:24px;
-  border:3px solid black;
-}
-
-.god{ background:#d85c5c; }
-.semi{ background:#e6a764; }
-
-.table{
-  display:flex;
-  border-left:3px solid black;
-  border-right:3px solid black;
-  margin-bottom:40px;
-}
-
-.column{
-  flex:1;
-  border-right:3px solid black;
-  background:white;
-  min-height:220px;
-}
-
-.column:last-child{
-  border-right:none;
-}
-
-.header{
-  background:#444;
-  color:white;
-  text-align:center;
-  padding:8px;
-  border-bottom:3px solid black;
-  font-weight:bold;
-}
-
-.row{
-  display:flex;
-  align-items:center;
-  padding:4px;
-  border-bottom:2px solid black;
-  cursor:grab;
-}
-
-.row img{
-  width:28px;
-  height:28px;
-  margin-right:6px;
-}
-
-.row span{
-  color:red;
-  text-decoration:underline;
-  font-weight:bold;
-  font-size:13px;
-}
+body{font-family:Arial;margin:0;background:#f3f3f3}
+.section{padding:14px;text-align:center;font-weight:bold;font-size:24px;border:3px solid black}
+.god{background:#d85c5c}
+.semi{background:#e6a764}
+.table{display:flex;border-left:3px solid black;border-right:3px solid black;margin-bottom:40px}
+.column{flex:1;border-right:3px solid black;background:white;min-height:220px}
+.column:last-child{border-right:none}
+.header{background:#444;color:white;text-align:center;padding:8px;border-bottom:3px solid black;font-weight:bold}
+.row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black;cursor:grab}
+.row img{width:28px;height:28px;margin-right:6px}
+.row span{color:red;text-decoration:underline;font-weight:bold;font-size:13px}
 </style>
 </head>
-
 <body>
 
 <div class="section god">GOD TIER</div>
@@ -80,153 +26,115 @@ body{
 <div class="section semi">SEMI-GOD TIER</div>
 <div class="table" id="semi"></div>
 
-<script>
-/* ============================= */
-/* CONFIGURACIÓN */
-/* ============================= */
+<script type="module">
 
-const classes = ["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* DATOS INICIALES */
-const defaultData = {
-  god:{
-    MUTANTES:["Magneto","Onslaught"],
-    HÁBILES:["Shang Chi"],
-    CIENTÍFICOS:["Hulk"],
-    MÍSTICOS:["Doctor Doom"],
-    CÓSMICOS:["Hercules"],
-    TECNOS:["Shuri"]
-  },
-  semi:{
-    MUTANTES:["Bishop"],
-    HÁBILES:["Black Cat"],
-    CIENTÍFICOS:["Mister Negative"],
-    MÍSTICOS:["Wiccan"],
-    CÓSMICOS:["Hyperion"],
-    TECNOS:["Guardian"]
-  }
-};
-
-/* ============================= */
-/* CREAR TABLAS */
-/* ============================= */
-
-function createTables(){
-  ["god","semi"].forEach(tier=>{
-    const table = document.getElementById(tier);
-    table.innerHTML = "";
-
-    classes.forEach(cls=>{
-      const column = document.createElement("div");
-      column.className = "column";
-      column.dataset.cls = cls;
-
-      const header = document.createElement("div");
-      header.className = "header";
-      header.textContent = cls;
-      column.appendChild(header);
-
-      column.ondragover = e => e.preventDefault();
-
-      column.ondrop = e=>{
-        const id = e.dataTransfer.getData("id");
-        const dragged = document.getElementById(id);
-        if(dragged){
-          column.appendChild(dragged);
-          saveData();
-        }
-      };
-
-      table.appendChild(column);
-    });
-  });
-}
-
-/* ============================= */
-/* CREAR PERSONAJE */
-/* ============================= */
-
-function createRow(name){
-  const row = document.createElement("div");
-  row.className = "row";
-  row.draggable = true;
-  row.id = "r" + Math.random();
-
-  const img = "https://ui-avatars.com/api/?name=" +
-              encodeURIComponent(name) +
-              "&background=random&color=fff";
-
-  row.innerHTML = "<img src='"+img+"'><span>"+name+"</span>";
-
-  row.ondragstart = e=>{
-    e.dataTransfer.setData("id", row.id);
+/* 🔴 PEGA AQUÍ TU firebaseConfig */
+const firebaseConfig = {
+    apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
+    authDomain: "tier-list-mcoc.firebaseapp.com",
+    projectId: "tier-list-mcoc",
+    storageBucket: "tier-list-mcoc.firebasestorage.app",
+    messagingSenderId: "171313453656",
+    appId: "1:171313453656:web:83e1a681425422d8cac82d",
+    measurementId: "G-G2Q61X2G0X"
   };
 
-  return row;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const tierRef = doc(db, "tierData", "main");
+
+const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
+
+function createTables(){
+["god","semi"].forEach(tier=>{
+const table=document.getElementById(tier);
+table.innerHTML="";
+classes.forEach(cls=>{
+let col=document.createElement("div");
+col.className="column";
+col.dataset.cls=cls;
+
+let header=document.createElement("div");
+header.className="header";
+header.textContent=cls;
+col.appendChild(header);
+
+col.ondragover=e=>e.preventDefault();
+col.ondrop=e=>{
+let id=e.dataTransfer.getData("id");
+let dragged=document.getElementById(id);
+if(dragged){
+col.appendChild(dragged);
+saveToFirebase();
+}
+};
+
+table.appendChild(col);
+});
+});
 }
 
-/* ============================= */
-/* CARGAR DATOS SEGURO */
-/* ============================= */
+function createRow(name){
+let r=document.createElement("div");
+r.className="row";
+r.draggable=true;
+r.id="r"+Math.random();
 
-function loadData(){
-  let data = defaultData;
+let img="https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff";
+r.innerHTML="<img src='"+img+"'><span>"+name+"</span>";
 
-  try{
-    const saved = localStorage.getItem("tierData");
-    if(saved){
-      data = JSON.parse(saved);
-    }
-  }catch(e){
-    console.log("Error en localStorage, reseteando.");
-    localStorage.removeItem("tierData");
-    data = defaultData;
-  }
+r.ondragstart=e=>{
+e.dataTransfer.setData("id",r.id);
+};
 
-  Object.keys(data).forEach(tier=>{
-    classes.forEach(cls=>{
-      if(data[tier][cls]){
-        data[tier][cls].forEach(name=>{
-          const column = document.querySelector("#"+tier+" [data-cls='"+cls+"']");
-          if(column){
-            column.appendChild(createRow(name));
-          }
-        });
-      }
-    });
-  });
+return r;
 }
 
-/* ============================= */
-/* GUARDAR */
-/* ============================= */
+async function saveToFirebase(){
+let data={god:{},semi:{}};
 
-function saveData(){
-  const data = { god:{}, semi:{} };
+["god","semi"].forEach(tier=>{
+classes.forEach(cls=>{
+data[tier][cls]=[];
+document.querySelectorAll("#"+tier+" [data-cls='"+cls+"'] .row")
+.forEach(r=>{
+data[tier][cls].push(r.querySelector("span").textContent);
+});
+});
+});
 
-  ["god","semi"].forEach(tier=>{
-    classes.forEach(cls=>{
-      data[tier][cls] = [];
-
-      document.querySelectorAll("#"+tier+" [data-cls='"+cls+"'] .row")
-      .forEach(row=>{
-        data[tier][cls].push(
-          row.querySelector("span").textContent
-        );
-      });
-
-    });
-  });
-
-  localStorage.setItem("tierData", JSON.stringify(data));
+await setDoc(tierRef,data);
 }
 
-/* ============================= */
-/* INIT */
-/* ============================= */
+function renderData(data){
+createTables();
+Object.keys(data).forEach(tier=>{
+classes.forEach(cls=>{
+if(data[tier][cls]){
+data[tier][cls].forEach(name=>{
+document.querySelector("#"+tier+" [data-cls='"+cls+"']")
+.appendChild(createRow(name));
+});
+}
+});
+});
+}
+
+/* ESCUCHAR CAMBIOS EN TIEMPO REAL */
+onSnapshot(tierRef,(docSnap)=>{
+if(docSnap.exists()){
+renderData(docSnap.data());
+}else{
+/* Si no existe documento aún, lo creamos vacío */
+saveToFirebase();
+}
+});
 
 createTables();
-loadData();
+
 </script>
 
 </body>
