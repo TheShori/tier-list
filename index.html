@@ -1,89 +1,233 @@
-<script>
-const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Tier List MCOC</title>
 
-const defaultData={
-god:{
-MUTANTES:["Magneto","Onslaught"],
-HÁBILES:["Shang Chi"],
-CIENTÍFICOS:["Hulk"],
-MÍSTICOS:["Doom"],
-CÓSMICOS:["Hercules"],
-TECNOS:["Shuri"]
-},
-semi:{
-MUTANTES:["Bishop"],
-HÁBILES:["Black Cat"],
-CIENTÍFICOS:["Negative"],
-MÍSTICOS:["Wiccan"],
-CÓSMICOS:["Hyperion"],
-TECNOS:["Guardian"]
+<style>
+body{
+  font-family:Arial, sans-serif;
+  margin:0;
+  background:#f3f3f3;
 }
+
+.section{
+  padding:14px;
+  text-align:center;
+  font-weight:bold;
+  font-size:24px;
+  border:3px solid black;
+}
+
+.god{ background:#d85c5c; }
+.semi{ background:#e6a764; }
+
+.table{
+  display:flex;
+  border-left:3px solid black;
+  border-right:3px solid black;
+  margin-bottom:40px;
+}
+
+.column{
+  flex:1;
+  border-right:3px solid black;
+  background:white;
+  min-height:220px;
+}
+
+.column:last-child{
+  border-right:none;
+}
+
+.header{
+  background:#444;
+  color:white;
+  text-align:center;
+  padding:8px;
+  border-bottom:3px solid black;
+  font-weight:bold;
+}
+
+.row{
+  display:flex;
+  align-items:center;
+  padding:4px;
+  border-bottom:2px solid black;
+  cursor:grab;
+}
+
+.row img{
+  width:28px;
+  height:28px;
+  margin-right:6px;
+}
+
+.row span{
+  color:red;
+  text-decoration:underline;
+  font-weight:bold;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="section god">GOD TIER</div>
+<div class="table" id="god"></div>
+
+<div class="section semi">SEMI-GOD TIER</div>
+<div class="table" id="semi"></div>
+
+<script>
+/* ============================= */
+/* CONFIGURACIÓN */
+/* ============================= */
+
+const classes = ["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
+
+/* DATOS INICIALES */
+const defaultData = {
+  god:{
+    MUTANTES:["Magneto","Onslaught"],
+    HÁBILES:["Shang Chi"],
+    CIENTÍFICOS:["Hulk"],
+    MÍSTICOS:["Doctor Doom"],
+    CÓSMICOS:["Hercules"],
+    TECNOS:["Shuri"]
+  },
+  semi:{
+    MUTANTES:["Bishop"],
+    HÁBILES:["Black Cat"],
+    CIENTÍFICOS:["Mister Negative"],
+    MÍSTICOS:["Wiccan"],
+    CÓSMICOS:["Hyperion"],
+    TECNOS:["Guardian"]
+  }
 };
+
+/* ============================= */
+/* CREAR TABLAS */
+/* ============================= */
 
 function createTables(){
-["god","semi"].forEach(tier=>{
-let table=document.getElementById(tier);
-table.innerHTML="";
-classes.forEach(cls=>{
-let col=document.createElement("div");
-col.className="column";
-col.innerHTML="<div class='header'>"+cls+"</div>";
-col.dataset.cls=cls;
+  ["god","semi"].forEach(tier=>{
+    const table = document.getElementById(tier);
+    table.innerHTML = "";
 
-col.ondragover=e=>e.preventDefault();
-col.ondrop=e=>{
-let id=e.dataTransfer.getData("id");
-col.appendChild(document.getElementById(id));
-save(); // 🔥 guardamos al mover
-};
+    classes.forEach(cls=>{
+      const column = document.createElement("div");
+      column.className = "column";
+      column.dataset.cls = cls;
 
-table.appendChild(col);
-});
-});
+      const header = document.createElement("div");
+      header.className = "header";
+      header.textContent = cls;
+      column.appendChild(header);
+
+      column.ondragover = e => e.preventDefault();
+
+      column.ondrop = e=>{
+        const id = e.dataTransfer.getData("id");
+        const dragged = document.getElementById(id);
+        if(dragged){
+          column.appendChild(dragged);
+          saveData();
+        }
+      };
+
+      table.appendChild(column);
+    });
+  });
 }
+
+/* ============================= */
+/* CREAR PERSONAJE */
+/* ============================= */
 
 function createRow(name){
-let r=document.createElement("div");
-r.className="row";
-r.draggable=true;
-r.id="r"+Math.random();
-r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
-r.ondragstart=e=>{
-e.dataTransfer.setData("id",r.id);
-};
-return r;
+  const row = document.createElement("div");
+  row.className = "row";
+  row.draggable = true;
+  row.id = "r" + Math.random();
+
+  const img = "https://ui-avatars.com/api/?name=" +
+              encodeURIComponent(name) +
+              "&background=random&color=fff";
+
+  row.innerHTML = "<img src='"+img+"'><span>"+name+"</span>";
+
+  row.ondragstart = e=>{
+    e.dataTransfer.setData("id", row.id);
+  };
+
+  return row;
 }
 
-function load(){
-let saved=localStorage.getItem("tierData");
-let data=saved?JSON.parse(saved):defaultData;
+/* ============================= */
+/* CARGAR DATOS SEGURO */
+/* ============================= */
 
-Object.keys(data).forEach(tier=>{
-classes.forEach(cls=>{
-data[tier][cls].forEach(name=>{
-document.querySelector("#"+tier+" [data-cls='"+cls+"']").appendChild(createRow(name));
-});
-});
-});
+function loadData(){
+  let data = defaultData;
+
+  try{
+    const saved = localStorage.getItem("tierData");
+    if(saved){
+      data = JSON.parse(saved);
+    }
+  }catch(e){
+    console.log("Error en localStorage, reseteando.");
+    localStorage.removeItem("tierData");
+    data = defaultData;
+  }
+
+  Object.keys(data).forEach(tier=>{
+    classes.forEach(cls=>{
+      if(data[tier][cls]){
+        data[tier][cls].forEach(name=>{
+          const column = document.querySelector("#"+tier+" [data-cls='"+cls+"']");
+          if(column){
+            column.appendChild(createRow(name));
+          }
+        });
+      }
+    });
+  });
 }
 
-function save(){
-let data={god:{},semi:{}};
+/* ============================= */
+/* GUARDAR */
+/* ============================= */
 
-["god","semi"].forEach(tier=>{
-classes.forEach(cls=>{
-data[tier][cls]=[];
-document.querySelectorAll("#"+tier+" [data-cls='"+cls+"'] .row")
-.forEach(r=>{
-data[tier][cls].push(r.querySelector("span").textContent);
-});
-});
-});
+function saveData(){
+  const data = { god:{}, semi:{} };
 
-localStorage.setItem("tierData",JSON.stringify(data));
+  ["god","semi"].forEach(tier=>{
+    classes.forEach(cls=>{
+      data[tier][cls] = [];
+
+      document.querySelectorAll("#"+tier+" [data-cls='"+cls+"'] .row")
+      .forEach(row=>{
+        data[tier][cls].push(
+          row.querySelector("span").textContent
+        );
+      });
+
+    });
+  });
+
+  localStorage.setItem("tierData", JSON.stringify(data));
 }
+
+/* ============================= */
+/* INIT */
+/* ============================= */
 
 createTables();
-load();
+loadData();
 </script>
 
+</body>
+</html>
