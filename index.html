@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tier List MCOC Online</title>
+<title>Tier List MCOC PRO</title>
 
 <style>
 body{font-family:Arial;margin:0;background:#f3f3f3}
@@ -16,7 +16,7 @@ body{font-family:Arial;margin:0;background:#f3f3f3}
 .row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black}
 .row img{width:28px;height:28px;margin-right:6px}
 .row span{color:red;text-decoration:underline;font-weight:bold;font-size:13px}
-.adminButton{
+.loginBtn{
 position:fixed;
 top:10px;
 right:10px;
@@ -31,7 +31,7 @@ z-index:1000;
 
 <body>
 
-<div class="adminButton" onclick="toggleAdmin()">Modo Admin</div>
+<div class="loginBtn" onclick="login()">Login</div>
 
 <div class="section god">GOD TIER</div>
 <div class="table" id="god"></div>
@@ -41,6 +41,7 @@ z-index:1000;
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
 <script>
 
@@ -56,31 +57,28 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 const tierRef = db.collection("tierData").doc("main");
 
-const ADMIN_PASSWORD = "Genesisesminovia6.";  // 🔐 CAMBIA ESTO
-let isAdmin = false;
+let isAdmin=false;
 
-const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
-
-function toggleAdmin(){
-if(isAdmin){
-isAdmin=false;
-alert("Modo público activado");
-render(currentData);
-return;
+function login(){
+const provider = new firebase.auth.GoogleAuthProvider();
+auth.signInWithPopup(provider);
 }
 
-let pass=prompt("Introduce contraseña admin:");
-if(pass===ADMIN_PASSWORD){
+auth.onAuthStateChanged(user=>{
+if(user){
+console.log("Usuario logeado:", user.uid);
 isAdmin=true;
-alert("Modo admin activado");
 render(currentData);
 }else{
-alert("Contraseña incorrecta");
+isAdmin=false;
+render(currentData);
 }
-}
+});
 
+const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 let currentData=null;
 
 function createTables(){
@@ -123,15 +121,14 @@ r.style.cursor="grab";
 r.ondragstart=e=>{
 e.dataTransfer.setData("id",r.id);
 };
-}else{
-r.draggable=false;
-r.style.cursor="default";
 }
 
 return r;
 }
 
 async function saveData(){
+if(!isAdmin) return;
+
 let data={god:{},semi:{}};
 ["god","semi"].forEach(tier=>{
 classes.forEach(cls=>{
@@ -146,6 +143,7 @@ await tierRef.set(data);
 }
 
 function render(data){
+if(!data) return;
 currentData=data;
 createTables();
 Object.keys(data).forEach(tier=>{
