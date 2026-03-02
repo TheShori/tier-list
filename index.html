@@ -2,8 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tier List MCOC Online</title>
-
+<title>Tier List MCOC</title>
 <style>
 body{font-family:Arial;margin:0;background:#f3f3f3}
 .section{padding:14px;text-align:center;font-weight:bold;font-size:24px;border:3px solid black}
@@ -27,11 +26,9 @@ body{font-family:Arial;margin:0;background:#f3f3f3}
 <div class="table" id="semi"></div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* 🔥 TU CONFIGURACIÓN */
 const firebaseConfig = {
   apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
   authDomain: "tier-list-mcoc.firebaseapp.com",
@@ -48,7 +45,6 @@ const tierRef = doc(db, "tierData", "main");
 
 const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-/* 🔥 DATOS INICIALES */
 const defaultData={
 god:{
 MUTANTES:["Magneto","Onslaught"],
@@ -68,8 +64,6 @@ TECNOS:["Guardian"]
 }
 };
 
-/* ============================= */
-
 function createTables(){
 ["god","semi"].forEach(tier=>{
 const table=document.getElementById(tier);
@@ -78,22 +72,16 @@ classes.forEach(cls=>{
 let col=document.createElement("div");
 col.className="column";
 col.dataset.cls=cls;
-
-let header=document.createElement("div");
-header.className="header";
-header.textContent=cls;
-col.appendChild(header);
-
+col.innerHTML="<div class='header'>"+cls+"</div>";
 col.ondragover=e=>e.preventDefault();
 col.ondrop=e=>{
 let id=e.dataTransfer.getData("id");
 let dragged=document.getElementById(id);
 if(dragged){
 col.appendChild(dragged);
-saveToFirebase();
+saveData();
 }
 };
-
 table.appendChild(col);
 });
 });
@@ -104,34 +92,24 @@ let r=document.createElement("div");
 r.className="row";
 r.draggable=true;
 r.id="r"+Math.random();
-
-let img="https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff";
-r.innerHTML="<img src='"+img+"'><span>"+name+"</span>";
-
-r.ondragstart=e=>{
-e.dataTransfer.setData("id",r.id);
-};
-
+r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
+r.ondragstart=e=>{e.dataTransfer.setData("id",r.id);};
 return r;
 }
 
-async function saveToFirebase(){
+async function saveData(){
 let data={god:{},semi:{}};
-
 ["god","semi"].forEach(tier=>{
 classes.forEach(cls=>{
 data[tier][cls]=[];
 document.querySelectorAll("#"+tier+" [data-cls='"+cls+"'] .row")
-.forEach(r=>{
-data[tier][cls].push(r.querySelector("span").textContent);
+.forEach(r=>{data[tier][cls].push(r.querySelector("span").textContent);});
 });
 });
-});
-
 await setDoc(tierRef,data);
 }
 
-function renderData(data){
+function render(data){
 createTables();
 Object.keys(data).forEach(tier=>{
 classes.forEach(cls=>{
@@ -145,34 +123,27 @@ document.querySelector("#"+tier+" [data-cls='"+cls+"']")
 });
 }
 
-/* ============================= */
-/* INIT */
-/* ============================= */
-
 async function init(){
 createTables();
 
-const snapshot = await getDoc(tierRef);
+try{
+let snap=await getDoc(tierRef);
 
-if(!snapshot.exists()){
-await setDoc(tierRef, defaultData);
-renderData(defaultData);
+if(!snap.exists()){
+await setDoc(tierRef,defaultData);
+render(defaultData);
 }else{
-renderData(snapshot.data());
+render(snap.data());
 }
 
-onSnapshot(tierRef,(docSnap)=>{
-if(docSnap.exists()){
-renderData(docSnap.data());
+}catch(e){
+console.error("ERROR FIREBASE:",e);
+alert("Error con Firebase. Mira la consola (F12).");
 }
-});
 }
 
 init();
-
 </script>
 
 </body>
 </html>
-
-
