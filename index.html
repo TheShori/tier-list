@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tier List TheShoriMCOC</title>
+<title>Tier List MCOC Online</title>
 
 <style>
 body{font-family:Arial;margin:0;background:#f3f3f3}
@@ -29,24 +29,46 @@ body{font-family:Arial;margin:0;background:#f3f3f3}
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* 🔴 PEGA AQUÍ TU firebaseConfig */
+/* 🔥 TU CONFIGURACIÓN */
 const firebaseConfig = {
-    apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
-    authDomain: "tier-list-mcoc.firebaseapp.com",
-    projectId: "tier-list-mcoc",
-    storageBucket: "tier-list-mcoc.firebasestorage.app",
-    messagingSenderId: "171313453656",
-    appId: "1:171313453656:web:83e1a681425422d8cac82d",
-    measurementId: "G-G2Q61X2G0X"
-  };
+  apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
+  authDomain: "tier-list-mcoc.firebaseapp.com",
+  projectId: "tier-list-mcoc",
+  storageBucket: "tier-list-mcoc.firebasestorage.app",
+  messagingSenderId: "171313453656",
+  appId: "1:171313453656:web:83e1a681425422d8cac82d",
+  measurementId: "G-G2Q61X2G0X"
+};
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const tierRef = doc(db, "tierData", "main");
 
 const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
+
+/* 🔥 DATOS INICIALES */
+const defaultData={
+god:{
+MUTANTES:["Magneto","Onslaught"],
+HÁBILES:["Shang Chi"],
+CIENTÍFICOS:["Hulk"],
+MÍSTICOS:["Doctor Doom"],
+CÓSMICOS:["Hercules"],
+TECNOS:["Shuri"]
+},
+semi:{
+MUTANTES:["Bishop"],
+HÁBILES:["Black Cat"],
+CIENTÍFICOS:["Mister Negative"],
+MÍSTICOS:["Wiccan"],
+CÓSMICOS:["Hyperion"],
+TECNOS:["Guardian"]
+}
+};
+
+/* ============================= */
 
 function createTables(){
 ["god","semi"].forEach(tier=>{
@@ -123,20 +145,34 @@ document.querySelector("#"+tier+" [data-cls='"+cls+"']")
 });
 }
 
-/* ESCUCHAR CAMBIOS EN TIEMPO REAL */
+/* ============================= */
+/* INIT */
+/* ============================= */
+
+async function init(){
+createTables();
+
+const snapshot = await getDoc(tierRef);
+
+if(!snapshot.exists()){
+await setDoc(tierRef, defaultData);
+renderData(defaultData);
+}else{
+renderData(snapshot.data());
+}
+
 onSnapshot(tierRef,(docSnap)=>{
 if(docSnap.exists()){
 renderData(docSnap.data());
-}else{
-/* Si no existe documento aún, lo creamos vacío */
-saveToFirebase();
 }
 });
+}
 
-createTables();
+init();
 
 </script>
 
 </body>
 </html>
+
 
