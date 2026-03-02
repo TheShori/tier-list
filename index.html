@@ -2,44 +2,94 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Tier Test</title>
+<title>Tier List</title>
 <style>
-body{font-family:Arial;margin:0}
-.box{border:2px solid black;margin:10px;padding:10px}
-.item{padding:5px;margin:5px;border:1px solid black}
+body{font-family:Arial;margin:0;background:#f3f3f3}
+.section{padding:12px;text-align:center;font-weight:bold;font-size:22px;border:3px solid black}
+.god{background:#d85c5c}
+.semi{background:#e6a764}
+.table{display:flex;border-left:3px solid black;border-right:3px solid black;margin-bottom:40px}
+.column{flex:1;border-right:3px solid black;background:white;min-height:200px}
+.column:last-child{border-right:none}
+.header{background:#444;color:white;text-align:center;padding:8px;border-bottom:3px solid black}
+.row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black;cursor:grab}
+.row img{width:28px;height:28px;margin-right:6px}
+.row span{color:red;text-decoration:underline;font-weight:bold;font-size:13px}
 </style>
 </head>
 <body>
 
-<h1>Tier funcionando</h1>
+<div class="section god">GOD TIER</div>
+<div class="table" id="god"></div>
 
-<div id="god" class="box"></div>
-<div id="semi" class="box"></div>
+<div class="section semi">SEMI-GOD TIER</div>
+<div class="table" id="semi"></div>
 
 <script>
-console.log("JS cargado correctamente");
+const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-const defaultData={
-god:["Magneto","Onslaught","Domino"],
-semi:["Bishop","Hyperion"]
+const data={
+god:{
+MUTANTES:["Magneto","Onslaught"],
+HÁBILES:["Shang Chi"],
+CIENTÍFICOS:["Hulk"],
+MÍSTICOS:["Doom"],
+CÓSMICOS:["Hercules"],
+TECNOS:["Shuri"]
+},
+semi:{
+MUTANTES:["Bishop"],
+HÁBILES:["Black Cat"],
+CIENTÍFICOS:["Negative"],
+MÍSTICOS:["Wiccan"],
+CÓSMICOS:["Hyperion"],
+TECNOS:["Guardian"]
+}
 };
 
-function load(){
-console.log("Cargando datos...");
+function createTables(){
+["god","semi"].forEach(tier=>{
+let table=document.getElementById(tier);
+classes.forEach(cls=>{
+let col=document.createElement("div");
+col.className="column";
+col.innerHTML="<div class='header'>"+cls+"</div>";
+col.dataset.cls=cls;
 
-Object.keys(defaultData).forEach(tier=>{
-let container=document.getElementById(tier);
-defaultData[tier].forEach(name=>{
-let div=document.createElement("div");
-div.className="item";
-div.textContent=name;
-container.appendChild(div);
+col.ondragover=e=>e.preventDefault();
+col.ondrop=e=>{
+let id=e.dataTransfer.getData("id");
+col.appendChild(document.getElementById(id));
+};
+
+table.appendChild(col);
 });
 });
-
-console.log("Datos cargados correctamente");
 }
 
+function createRow(name){
+let r=document.createElement("div");
+r.className="row";
+r.draggable=true;
+r.id="r"+Math.random();
+r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
+r.ondragstart=e=>{
+e.dataTransfer.setData("id",r.id);
+};
+return r;
+}
+
+function load(){
+Object.keys(data).forEach(tier=>{
+classes.forEach(cls=>{
+data[tier][cls].forEach(name=>{
+document.querySelector("#"+tier+" [data-cls='"+cls+"']").appendChild(createRow(name));
+});
+});
+});
+}
+
+createTables();
 load();
 </script>
 
