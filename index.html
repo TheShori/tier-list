@@ -1,9 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>PRUEBA</title>
+<meta charset="UTF-8">
+<title>Tier List</title>
+
+<style>
+body{font-family:Arial;margin:0;background:#f3f3f3}
+.section{padding:10px;text-align:center;font-weight:bold;font-size:22px;border:3px solid black}
+.god{background:#d85c5c}
+.semi{background:#e6a764}
+.table{display:flex;border-left:3px solid black;border-right:3px solid black;margin-bottom:40px}
+.column{flex:1;border-right:3px solid black;background:white;min-height:200px}
+.column:last-child{border-right:none}
+.header{background:#444;color:white;text-align:center;padding:8px;border-bottom:3px solid black}
+.row{display:flex;align-items:center;padding:4px;border-bottom:2px solid black;cursor:grab}
+.row img{width:28px;height:28px;margin-right:6px}
+.row span{color:red;text-decoration:underline;font-weight:bold;font-size:13px}
+button{margin:10px;padding:6px}
+</style>
 </head>
+
 <body>
-<h1>FUNCIONA</h1>
+
+<button onclick="edit()">Activar modo edición</button>
+
+<div class="section god">GOD TIER</div>
+<div class="table" id="god"></div>
+
+<div class="section semi">SEMI-GOD TIER</div>
+<div class="table" id="semi"></div>
+
+<script>
+const PASSWORD="1234";
+const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
+let editMode=false;
+
+const defaultData={
+god:{MUTANTES:["Magneto"],HÁBILES:["Shang Chi"],CIENTÍFICOS:["Hulk"],MÍSTICOS:["Doom"],CÓSMICOS:["Hercules"],TECNOS:["Shuri"]},
+semi:{MUTANTES:["Bishop"],HÁBILES:["Black Cat"],CIENTÍFICOS:["Negative"],MÍSTICOS:["Wiccan"],CÓSMICOS:["Hyperion"],TECNOS:["Guardian"]}
+};
+
+function createTables(){
+["god","semi"].forEach(id=>{
+const table=document.getElementById(id);
+table.innerHTML="";
+classes.forEach(cls=>{
+let col=document.createElement("div");
+col.className="column";
+col.dataset.cls=cls;
+col.innerHTML="<div class='header'>"+cls+"</div>";
+col.ondragover=e=>e.preventDefault();
+col.ondrop=e=>{
+if(!editMode)return;
+col.appendChild(document.getElementById(e.dataTransfer.getData("id")));
+save();
+};
+table.appendChild(col);
+});
+});
+}
+
+function row(name){
+let r=document.createElement("div");
+r.className="row";
+r.draggable=true;
+r.id="r"+Math.random();
+r.innerHTML="<img src='https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=random&color=fff'><span>"+name+"</span>";
+r.ondragstart=e=>{
+if(!editMode)return;
+e.dataTransfer.setData("id",r.id);
+};
+return r;
+}
+
+function load(){
+let saved=localStorage.getItem("tier");
+let data=saved?JSON.parse(saved):defaultData;
+
+Object.keys(data).forEach(t=>{
+classes.forEach(cls=>{
+data[t][cls].forEach(n=>{
+document.querySelector("#"+t+" [data-cls='"+cls+"']").appendChild(row(n));
+});
+});
+});
+}
+
+function save(){
+let data={god:{},semi:{}};
+["god","semi"].forEach(t=>{
+classes.forEach(cls=>{
+data[t][cls]=[];
+document.querySelectorAll("#"+t+" [data-cls='"+cls+"'] .row").forEach(r=>{
+data[t][cls].push(r.querySelector("span").textContent);
+});
+});
+});
+localStorage.setItem("tier",JSON.stringify(data));
+}
+
+function edit(){
+let p=prompt("Contraseña");
+if(p===PASSWORD){editMode=true;alert("Modo edición activado");}
+}
+
+createTables();
+load();
+</script>
+
 </body>
 </html>
+
