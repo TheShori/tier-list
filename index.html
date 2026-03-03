@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Tier List MCOC PRO</title>
-
   <style>
     /* 🔥 FUENTE PERSONALIZADA */
     @font-face {
@@ -150,6 +150,19 @@
       border: 2px dashed #999;
       margin: 4px 0;
     }
+
+    #menu {
+      margin: 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    #menu input,
+    #menu button {
+      padding: 10px;
+      font-size: 16px;
+    }
   </style>
 </head>
 
@@ -158,6 +171,14 @@
   <div class="topBar">
     <div id="loginBtn" class="button">Login</div>
     <div id="userArea"></div>
+  </div>
+
+  <!-- Menú para añadir personajes -->
+  <div id="menu">
+    <input type="text" id="nombrePersonaje" placeholder="Nombre del personaje" />
+    <input type="text" id="clasePersonaje" placeholder="Clase (Ej. TECNOS)" />
+    <input type="url" id="fotoPersonaje" placeholder="URL de la foto" />
+    <button id="addCharacterBtn">Añadir Personaje</button>
   </div>
 
   <div id="tiersContainer"></div>
@@ -200,6 +221,8 @@
     let placeholder = document.createElement("div");
     placeholder.className = "placeholder";
 
+    let personajes = [];  // Aquí guardaremos los personajes
+
     const loginBtn = document.getElementById("loginBtn");
     const userArea = document.getElementById("userArea");
 
@@ -228,13 +251,6 @@
       }
       if (currentData) render(currentData);
     });
-
-    // Añade personajes manualmente aquí
-    const personajes = [
-      { nombre: "Ironman", clase: "TECNOS", foto: "https://ui-avatars.com/api/?name=Ironman&background=random&color=fff" },
-      { nombre: "Capitán América", clase: "MUTANTES", foto: "https://ui-avatars.com/api/?name=Capitán+América&background=random&color=fff" },
-      // Añadir más personajes de la misma forma
-    ];
 
     // Crear fila con la foto
     function createRow(personaje) {
@@ -307,7 +323,20 @@
       });
     }
 
+    // Añadir personaje al presionar el botón
+    document.getElementById("addCharacterBtn").onclick = () => {
+      const nombre = document.getElementById("nombrePersonaje").value;
+      const clase = document.getElementById("clasePersonaje").value;
+      const foto = document.getElementById("fotoPersonaje").value;
+      if (nombre && clase && foto) {
+        const personaje = { nombre, clase, foto };
+        personajes.push(personaje);
+        render(currentData);
+      }
+    };
+
     init();
   </script>
 </body>
+
 </html>
