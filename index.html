@@ -300,6 +300,15 @@ function createRow(name, imageUrl){
   return r;
 }
 
+// Función para agregar un personaje a Firebase
+async function addCharacterToFirebase(tier, cls, name, imageUrl) {
+    const characterRef = tierRef.collection(tier).doc(cls).collection("characters");
+    await characterRef.add({
+        name: name,
+        imageUrl: imageUrl
+    });
+}
+
 async function saveData(){
   if(!isAdmin)return;
   let data={};
@@ -357,11 +366,14 @@ async function init(){
 buildStructure();
 init();
 
-// Añadir personajes manualmente a "Personajes Nuevos"
+// Añadido manualmente a "Personajes Nuevos" y guardado en Firebase
 document.querySelector("#new [data-cls='MUTANTES']").appendChild(createRow("Onslaught", "https://pbs.twimg.com/media/GAhX3ujXIAIKxIg?format=png&name=360x360"));
 document.querySelector("#new [data-cls='TECNOS']").appendChild(createRow("Iron Man (Clásico)", "https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360"));
+
+// Agregar personajes a Firebase para "PERSONAJES NUEVOS"
+addCharacterToFirebase("new", "MUTANTES", "Onslaught", "https://pbs.twimg.com/media/GAhX3ujXIAIKxIg?format=png&name=360x360");
+addCharacterToFirebase("new", "TECNOS", "Iron Man (Clásico)", "https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360");
 
 </script>
 </body>
 </html>
-
