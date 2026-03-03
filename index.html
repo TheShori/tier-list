@@ -341,7 +341,12 @@ function getDragAfterElement(container, y) {
 function createRow(name, imageUrl) {
   let r = document.createElement("div");
   r.className = "row";
-  r.innerHTML = "<img src='" + imageUrl + "' alt='" + name + "' width='28' height='28' style='margin-right:6px;'><span>" + name + "</span>";
+  
+  // Crear una imagen de perfil junto con el nombre
+  r.innerHTML = `
+    <img src="${imageUrl}" alt="${name}" width="30" height="30" style="margin-right:6px; border-radius: 50%;">
+    <span>${name}</span>
+  `;
 
   // Hacer los elementos arrastrables para el admin
   if (isAdmin) {
@@ -387,7 +392,7 @@ function render(data) {
         if (Array.isArray(data[t.id][cls])) {
           data[t.id][cls].forEach(name => {
             document.querySelector("#" + t.id + " [data-cls='" + cls + "']")
-              .appendChild(createRow(name));
+              .appendChild(createRow(name, `https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360`));
           });
         }
       });
