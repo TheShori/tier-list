@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Tier List MCOC PRO</title>
+
   <style>
     /* 🔥 FUENTE PERSONALIZADA */
     @font-face {
@@ -182,14 +183,15 @@
   <div id="menu">
     <input type="text" id="nombrePersonaje" placeholder="Nombre del personaje" />
     <select id="clasePersonaje">
-      <option value="TECNOS">TECNOS</option>
       <option value="MUTANTES">MUTANTES</option>
+      <option value="HÁBILES">HÁBILES</option>
       <option value="CIENTÍFICOS">CIENTÍFICOS</option>
       <option value="MÍSTICOS">MÍSTICOS</option>
       <option value="CÓSMICOS">CÓSMICOS</option>
-      <option value="HÁBILES">HÁBILES</option>
+      <option value="TECNOLÓGICOS">TECNOLÓGICOS</option>
     </select>
     <select id="tierPersonaje">
+      <option value="new">PERSONAJES NUEVOS</option>
       <option value="god">GOD TIER</option>
       <option value="semi">SEMI-GOD TIER</option>
       <option value="usables">USABLES TIER</option>
@@ -197,7 +199,7 @@
       <option value="meme">MEME TIER</option>
     </select>
     <input type="url" id="fotoPersonaje" placeholder="URL de la foto" />
-    <button id="addCharacterBtn">Añadir Personaje</button>
+    <button id="addCharacterBtn" class="button">Añadir Personaje</button>
   </div>
 
   <div id="tiersContainer"></div>
@@ -313,7 +315,7 @@
       tiers.forEach(t => {
         const table = document.getElementById(t.id);
         personajes.forEach(personaje => {
-          if (personaje.clase === t.class) {
+          if (personaje.tier === t.id) {
             table.appendChild(createRow(personaje));
           }
         });
@@ -325,7 +327,6 @@
       if (!snap.exists) {
         let baseData = {};
         tiers.forEach(t => {
-          baseData[t.id] = {};
           baseData[t.id] = [];
         });
         await tierRef.set(baseData);
@@ -345,7 +346,7 @@
       const foto = document.getElementById("fotoPersonaje").value;
       const tier = document.getElementById("tierPersonaje").value;
 
-      if (nombre && clase && foto) {
+      if (nombre && clase && foto && tier) {
         const personaje = { nombre, clase, foto, tier };
         personajes.push(personaje);
         render(currentData);
@@ -354,6 +355,7 @@
 
     init();
   </script>
+
 </body>
 
 </html>
