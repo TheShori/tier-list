@@ -5,187 +5,116 @@
 <title>Tier List MCOC PRO</title>
 
 <style>
-/* General Body and Layout */
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  background: #f0f0f0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 100px;
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#dcdcdc;
 }
 
-/* Top Bar Styling */
-.topBar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #2c3e50;
-  padding: 20px 40px;
-  width: 100%;
-  color: white;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+/* TOP BAR */
+.topBar{
+  background:#34495e;
+  padding:20px 40px;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  box-shadow:0 4px 10px rgba(0,0,0,.3);
 }
 
-.topBar .button {
-  background-color: #34495e;
-  color: white;
-  padding: 10px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s;
+.userCard{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  background:#3f556b;
+  padding:12px 20px;
+  border-radius:40px;
+  color:white;
+  box-shadow:0 4px 15px rgba(0,0,0,.3);
 }
 
-.topBar .button:hover {
-  background-color: #2980b9;
+.userCard img{
+  width:40px;
+  height:40px;
+  border-radius:50%;
 }
 
-/* User Area Styling */
-#userArea {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.badge{
+  background:#2ecc71;
+  padding:4px 10px;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:bold;
 }
 
-.userInfo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: #34495e;
-  padding: 10px;
-  border-radius: 30px;
-  color: white;
-  font-size: 14px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+.logout{
+  cursor:pointer;
+  font-weight:bold;
 }
 
-.userInfo img {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
+/* SECTIONS */
+.section{
+  margin:40px auto 20px;
+  width:90%;
+  background:#3f556b;
+  color:white;
+  text-align:center;
+  padding:15px;
+  font-weight:bold;
+  letter-spacing:1px;
 }
 
-.userInfo .adminBadge {
-  background-color: #2ecc71;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 10px;
-  font-size: 12px;
+/* TABLE */
+.table{
+  width:90%;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
 }
 
-.userInfo .viewerBadge {
-  background-color: #95a5a6;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 10px;
-  font-size: 12px;
+.column{
+  flex:1;
+  background:#eee;
+  border-radius:12px;
+  padding:15px;
+  min-height:300px;
+  box-shadow:0 5px 15px rgba(0,0,0,.15);
 }
 
-.topBar .button {
-  font-size: 14px;
-  padding: 10px 15px;
+.header{
+  font-weight:bold;
+  text-align:center;
+  margin-bottom:15px;
 }
 
-/* Content Section */
-.section {
-  background-color: #34495e;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  padding: 15px 0;
-  margin-top: 150px;
-  width: 100%;
+.row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#d5d8dc;
+  padding:8px;
+  border-radius:8px;
+  margin-bottom:8px;
+  cursor:pointer;
 }
 
-.table {
-  display: flex;
-  gap: 15px;
-  padding: 20px;
-  justify-content: center;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  margin-top: 20px;
+.row img{
+  width:30px;
+  height:30px;
+  border-radius:50%;
 }
 
-.column {
-  background-color: white;
-  width: 150px;
-  height: 300px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 10px;
-  transition: transform 0.3s;
-  overflow-y: auto;
-}
-
-.column:hover {
-  transform: scale(1.05);
-}
-
-.column .header {
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  padding-bottom: 10px;
-}
-
-/* Row Styling */
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: start;
-  padding: 8px;
-  margin-bottom: 8px;
-  background-color: #ecf0f1;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.row:hover {
-  background-color: #bdc3c7;
-}
-
-.row img {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.row span {
-  font-size: 14px;
-  color: #2c3e50;
-  font-weight: normal;
-}
-
-/* Placeholder while waiting for characters */
-.placeholder {
-  height: 40px;
-  background-color: #95a5a6;
-  border-radius: 5px;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 14px;
+.placeholder{
+  height:40px;
+  background:#bbb;
+  border-radius:8px;
+  margin-bottom:8px;
 }
 </style>
 </head>
 <body>
 
-<div class="topBar">
-  <div id="loginBtn" class="button">Login</div>
-  <div id="userArea"></div>
-</div>
-
+<div class="topBar" id="topBar"></div>
 <div id="tiersContainer"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -193,15 +122,12 @@ body {
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
 <script>
-// Configuración de Firebase
+/* ================= FIREBASE ================= */
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
+  apiKey: "TU_API_KEY",
   authDomain: "tier-list-mcoc.firebaseapp.com",
-  projectId: "tier-list-mcoc",
-  storageBucket: "tier-list-mcoc.firebasestorage.app",
-  messagingSenderId: "171313453656",
-  appId: "1:171313453656:web:83e1a681425422d8cac82d",
-  measurementId: "G-G2Q61X2G0X"
+  projectId: "tier-list-mcoc"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -211,111 +137,77 @@ const tierRef = db.collection("tierData").doc("main");
 
 const OWNER_UID = "HizrEHr3BjgUTyJZsSPoei0gHrA2";
 
-// Listado de tiers y clases
+/* ================= CONFIG ================= */
+
 const tiers = [
-  { id: "new", label: "PERSONAJES NUEVOS", class: "new" },
-  { id: "god", label: "GOD TIER", class: "god" },
-  { id: "semi", label: "SEMI-GOD TIER", class: "semi" },
-  { id: "usables", label: "USABLES TIER", class: "usables" },
-  { id: "ocasionales", label: "OCASIONALES TIER", class: "ocasionales" },
-  { id: "meme", label: "MEME TIER", class: "meme" }
+  {id:"new", label:"PERSONAJES NUEVOS"},
+  {id:"god", label:"GOD TIER"},
+  {id:"semi", label:"SEMI-GOD TIER"},
+  {id:"usables", label:"USABLES"},
+  {id:"ocasionales", label:"OCASIONALES"},
+  {id:"meme", label:"MEME"}
 ];
 
-const classes = ["MUTANTES", "HÁBILES", "CIENTÍFICOS", "MÍSTICOS", "CÓSMICOS", "TECNOS"];
+const classes = ["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-let isAdmin = false;
-let currentData = null;
-let draggedElement = null;
-let placeholder = document.createElement("div");
-placeholder.className = "placeholder";
+let isAdmin=false;
+let currentData=null;
+let dragged=null;
+let placeholder=document.createElement("div");
+placeholder.className="placeholder";
 
-const loginBtn = document.getElementById("loginBtn");
-const userArea = document.getElementById("userArea");
+/* ================= LOGIN ================= */
 
-loginBtn.onclick = () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider);
-};
+auth.onAuthStateChanged(user=>{
+  const bar=document.getElementById("topBar");
+  bar.innerHTML="";
 
-function logout() {
-  auth.signOut();
-}
-
-auth.onAuthStateChanged(user => {
-  if (user) {
-    isAdmin = (user.uid === OWNER_UID);
-    loginBtn.style.display = "none";
-    userArea.innerHTML = `
-    <div class="userInfo">
-      <img src="${user.photoURL}">
-      <span>${user.displayName}</span>
-      ${isAdmin ? '<div class="adminBadge">ADMIN</div>' : '<div class="viewerBadge">VIEWER</div>'}
-      <div class="button" onclick="logout()">Cerrar sesión</div>
-    </div>`;
-  } else {
-    isAdmin = false;
-    loginBtn.style.display = "block";
-    userArea.innerHTML = "";
+  if(user){
+    isAdmin = user.uid===OWNER_UID;
+    bar.innerHTML=`
+      <div class="userCard">
+        <img src="${user.photoURL}">
+        <div>${user.displayName}</div>
+        ${isAdmin?'<div class="badge">ADMIN</div>':''}
+        <div class="logout" onclick="auth.signOut()">Cerrar sesión</div>
+      </div>`;
   }
-  if (currentData) render(currentData);
 });
 
-// Esta función ahora inserta directamente los personajes en las listas de clases en lugar de usar subcolecciones
-async function addCharacterToFirebase(tier, cls, name) {
-  try {
-    const tierDoc = await tierRef.get();
-    let data = tierDoc.data();
-    data[tier][cls].push(name);  // Añadir el personaje al array
-    await tierRef.set(data);     // Actualizar la base de datos
-    console.log(`Character ${name} added to ${tier}/${cls}`);
-  } catch (error) {
-    console.error("Error adding character to Firebase:", error);
-  }
-}
+/* ================= BUILD UI ================= */
 
-// Renderiza la estructura de las clases y los personajes
-function buildStructure() {
-  const container = document.getElementById("tiersContainer");
-  container.innerHTML = "";
-  tiers.forEach(t => {
-    container.innerHTML += `
-    <div class="section ${t.class}">${t.label}</div>
-    <div class="table" id="${t.id}"></div>
-  `;
+function buildStructure(){
+  const container=document.getElementById("tiersContainer");
+  container.innerHTML="";
+  tiers.forEach(t=>{
+    container.innerHTML+=`
+      <div class="section">${t.label}</div>
+      <div class="table" id="${t.id}"></div>`;
   });
 }
 
-// Crea las tablas de las categorías
-function createTables() {
-  tiers.forEach(t => {
-    const table = document.getElementById(t.id);
-    table.innerHTML = "";
-    classes.forEach(cls => {
-      let col = document.createElement("div");
-      col.className = "column";
-      col.dataset.cls = cls;
-      col.innerHTML = "<div class='header'>" + cls + "</div>";
+function createTables(){
+  tiers.forEach(t=>{
+    const table=document.getElementById(t.id);
+    table.innerHTML="";
+    classes.forEach(cls=>{
+      let col=document.createElement("div");
+      col.className="column";
+      col.dataset.cls=cls;
+      col.innerHTML=`<div class="header">${cls}</div>`;
 
-      // Permitir que los elementos se arrastren y se dejen caer
-      col.addEventListener("dragover", e => {
-        if (!isAdmin) return;
+      col.addEventListener("dragover",e=>{
+        if(!isAdmin) return;
         e.preventDefault();
-        const afterElement = getDragAfterElement(col, e.clientY);
-        if (afterElement == null) {
-          col.appendChild(placeholder);
-        } else {
-          col.insertBefore(placeholder, afterElement);
-        }
+        col.appendChild(placeholder);
       });
 
-      col.addEventListener("drop", async e => {
-        if (!isAdmin) return;
+      col.addEventListener("drop",async e=>{
+        if(!isAdmin) return;
         e.preventDefault();
-        if (draggedElement) {
-          col.insertBefore(draggedElement, placeholder);
-          placeholder.remove();
-          await saveData(); // Guardar los cambios en Firebase
-        }
+        col.insertBefore(dragged,placeholder);
+        placeholder.remove();
+        await saveData();
       });
 
       table.appendChild(col);
@@ -323,110 +215,99 @@ function createTables() {
   });
 }
 
-// Función para obtener el próximo elemento en el contenedor
-function getDragAfterElement(container, y) {
-  const elements = [...container.querySelectorAll(".row:not(.dragging)")];
-  return elements.reduce((closest, child) => {
-    const box = child.getBoundingClientRect();
-    const offset = y - box.top - box.height / 2;
-    if (offset < 0 && offset > closest.offset) {
-      return { offset: offset, element: child };
-    } else {
-      return closest;
-    }
-  }, { offset: Number.NEGATIVE_INFINITY }).element;
-}
+/* ================= RENDER ================= */
 
-// Crear fila para cada personaje
-function createRow(name, imageUrl) {
-  let r = document.createElement("div");
-  r.className = "row";
-  
-  // Crear una imagen de perfil junto con el nombre
-  r.innerHTML = `
-    <img src="${imageUrl}" alt="${name}" width="30" height="30" style="margin-right:6px; border-radius: 50%;">
-    <span>${name}</span>
-  `;
+function createRow(character){
+  let r=document.createElement("div");
+  r.className="row";
+  r.innerHTML=`<img src="${character.image}"><span>${character.name}</span>`;
 
-  // Hacer los elementos arrastrables para el admin
-  if (isAdmin) {
-    r.draggable = true;
-    r.addEventListener("dragstart", () => {
-      draggedElement = r;
-      r.classList.add("dragging");
-    });
-    r.addEventListener("dragend", () => {
-      r.classList.remove("dragging");
-      placeholder.remove();
-      draggedElement = null;
-    });
+  if(isAdmin){
+    r.draggable=true;
+    r.addEventListener("dragstart",()=>{dragged=r;});
   }
   return r;
 }
 
-// Función para guardar los datos actualizados en Firebase
-async function saveData() {
-  if (!isAdmin) return;
-  let data = {};
-  tiers.forEach(t => {
-    data[t.id] = {};
-    classes.forEach(cls => {
-      data[t.id][cls] = [];
-      document.querySelectorAll("#" + t.id + " [data-cls='" + cls + "'] .row")
-        .forEach(r => {
-          data[t.id][cls].push(r.querySelector("span").textContent);
-        });
-    });
-  });
-  await tierRef.set(data); // Guardar en Firebase
-}
-
-// Función para actualizar la interfaz en tiempo real
-function render(data) {
-  currentData = data;
+function render(data){
+  currentData=data;
   buildStructure();
   createTables();
-  tiers.forEach(t => {
-    if (data[t.id]) {
-      classes.forEach(cls => {
-        if (Array.isArray(data[t.id][cls])) {
-          data[t.id][cls].forEach(name => {
-            document.querySelector("#" + t.id + " [data-cls='" + cls + "']")
-              .appendChild(createRow(name, `https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360`));
-          });
-        }
-      });
-    }
+
+  tiers.forEach(t=>{
+    classes.forEach(cls=>{
+      if(data[t.id][cls]){
+        data[t.id][cls].forEach(char=>{
+          document.querySelector(`#${t.id} [data-cls="${cls}"]`)
+          .appendChild(createRow(char));
+        });
+      }
+    });
   });
 }
 
-// Inicialización
-async function init() {
-  let snap = await tierRef.get();
-  if (!snap.exists) {
-    let baseData = {};
-    tiers.forEach(t => {
-      baseData[t.id] = {};
-      classes.forEach(cls => {
-        baseData[t.id][cls] = [];
+/* ================= SAVE ================= */
+
+async function saveData(){
+  let data={};
+  tiers.forEach(t=>{
+    data[t.id]={};
+    classes.forEach(cls=>{
+      data[t.id][cls]=[];
+      document.querySelectorAll(`#${t.id} [data-cls="${cls}"] .row`)
+      .forEach(r=>{
+        data[t.id][cls].push({
+          name:r.querySelector("span").textContent,
+          image:r.querySelector("img").src
+        });
       });
     });
-    await tierRef.set(baseData);
-    render(baseData);
-  } else {
+  });
+  await tierRef.set(data);
+}
+
+/* ================= INIT ================= */
+
+async function init(){
+  let snap=await tierRef.get();
+  if(!snap.exists){
+    let base={};
+    tiers.forEach(t=>{
+      base[t.id]={};
+      classes.forEach(cls=>base[t.id][cls]=[]);
+    });
+    await tierRef.set(base);
+    render(base);
+  }else{
     render(snap.data());
   }
-  tierRef.onSnapshot(doc => {
-    if (doc.exists) render(doc.data());
+
+  tierRef.onSnapshot(doc=>{
+    if(doc.exists) render(doc.data());
   });
 }
 
 buildStructure();
 init();
 
-// Añadir personajes manualmente a "Personajes Nuevos" y guardarlos en Firebase
-addCharacterToFirebase("new", "MUTANTES", "Onslaught");
-addCharacterToFirebase("new", "TECNOS", "Iron Man (Clásico)");
+/* ================= PERSONAJES MANUALES SIN DUPLICADOS ================= */
+
+async function ensureCharacter(tier,cls,name,image){
+  let snap=await tierRef.get();
+  let data=snap.data();
+  if(!data[tier][cls].some(c=>c.name===name)){
+    data[tier][cls].push({name,image});
+    await tierRef.set(data);
+  }
+}
+
+ensureCharacter("new","TECNOS",
+"Iron Man (Clásico)",
+"https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360");
+
+ensureCharacter("new","MUTANTES",
+"Onslaught",
+"https://pbs.twimg.com/media/GAhX3ujXIAIKxIg?format=png&name=360x360");
 
 </script>
 </body>
