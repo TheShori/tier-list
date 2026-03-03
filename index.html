@@ -79,7 +79,6 @@ body{
   border-radius:10px;
 }
 
-/* 🔥 GRID PERFECTO DE 6 COLUMNAS */
 .table{
   display:grid;
   grid-template-columns: repeat(6, 1fr);
@@ -260,7 +259,7 @@ function createTables(){
 
 function autoScroll(e){
   const margin=150;
-  const maxSpeed=60;
+  const maxSpeed=80;
   const y=e.clientY;
   const h=window.innerHeight;
 
@@ -313,12 +312,16 @@ async function saveData(){
     data[t.id]={};
     classes.forEach(cls=>{
       data[t.id][cls]=[];
+      const seen=new Set();
+
       document.querySelectorAll(`#${t.id} [data-cls="${cls}"] .row`)
       .forEach(r=>{
-        data[t.id][cls].push({
-          name:r.querySelector("span").textContent,
-          image:r.querySelector("img").src
-        });
+        const name=r.querySelector("span").textContent;
+        const image=r.querySelector("img").src;
+        if(!seen.has(name)){
+          seen.add(name);
+          data[t.id][cls].push({name,image});
+        }
       });
     });
   });
@@ -330,9 +333,13 @@ function render(data){
   createTables();
   tiers.forEach(t=>{
     classes.forEach(cls=>{
+      const seen=new Set();
       data[t.id][cls].forEach(char=>{
-        document.querySelector(`#${t.id} [data-cls="${cls}"]`)
-        .appendChild(createRow(char));
+        if(!seen.has(char.name)){
+          seen.add(char.name);
+          document.querySelector(`#${t.id} [data-cls="${cls}"]`)
+          .appendChild(createRow(char));
+        }
       });
     });
   });
@@ -352,9 +359,17 @@ async function ensureBase(){
     }
 
     MANUAL_CHARACTERS.forEach(ch=>{
-      const exists=data[ch.tier][ch.cls]
-        .some(c=>c.name===ch.name);
-      if(!exists)data[ch.tier][ch.cls].push(ch);
+      let exists=false;
+      tiers.forEach(t=>{
+        classes.forEach(cls=>{
+          if(data[t][cls].some(c=>c.name===ch.name)){
+            exists=true;
+          }
+        });
+      });
+      if(!exists){
+        data[ch.tier][ch.cls].push(ch);
+      }
     });
 
     tx.set(tierRef,data);
@@ -373,6 +388,5 @@ async function init(){
 init();
 
 </script>
-
 </body>
 </html>
