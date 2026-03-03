@@ -225,7 +225,7 @@
     const OWNER_UID = "HizrEHr3BjgUTyJZsSPoei0gHrA2";
 
     const tiers = [
-      { id: "new", label: "PERSONAJES NUEVOS", class: "new" }, // Nueva categoría añadida
+      { id: "new", label: "PERSONAJES NUEVOS", class: "new" },
       { id: "god", label: "GOD TIER", class: "god" },
       { id: "semi", label: "SEMI-GOD TIER", class: "semi" },
       { id: "usables", label: "USABLES TIER", class: "usables" },
@@ -239,7 +239,7 @@
     let placeholder = document.createElement("div");
     placeholder.className = "placeholder";
 
-    let personajes = []; // Aquí guardamos los personajes
+    let personajes = [];
 
     const loginBtn = document.getElementById("loginBtn");
     const userArea = document.getElementById("userArea");
@@ -326,7 +326,7 @@
         let baseData = {};
         tiers.forEach(t => {
           baseData[t.id] = {};
-          baseData[t.id] = []; // Aseguramos que cada tier tenga un array vacío
+          baseData[t.id] = [];
         });
         await tierRef.set(baseData);
         render(baseData);
