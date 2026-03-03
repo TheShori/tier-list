@@ -47,6 +47,10 @@
       background: #3f74c8;
     }
 
+    .new {
+      background: #aaa;
+    }
+
     .table {
       display: flex;
       border-left: 3px solid black;
@@ -159,7 +163,8 @@
     }
 
     #menu input,
-    #menu button {
+    #menu button,
+    #menu select {
       padding: 10px;
       font-size: 16px;
     }
@@ -176,7 +181,21 @@
   <!-- Menú para añadir personajes -->
   <div id="menu">
     <input type="text" id="nombrePersonaje" placeholder="Nombre del personaje" />
-    <input type="text" id="clasePersonaje" placeholder="Clase (Ej. TECNOS)" />
+    <select id="clasePersonaje">
+      <option value="TECNOS">TECNOS</option>
+      <option value="MUTANTES">MUTANTES</option>
+      <option value="CIENTÍFICOS">CIENTÍFICOS</option>
+      <option value="MÍSTICOS">MÍSTICOS</option>
+      <option value="CÓSMICOS">CÓSMICOS</option>
+      <option value="HÁBILES">HÁBILES</option>
+    </select>
+    <select id="tierPersonaje">
+      <option value="god">GOD TIER</option>
+      <option value="semi">SEMI-GOD TIER</option>
+      <option value="usables">USABLES TIER</option>
+      <option value="ocasionales">OCASIONALES TIER</option>
+      <option value="meme">MEME TIER</option>
+    </select>
     <input type="url" id="fotoPersonaje" placeholder="URL de la foto" />
     <button id="addCharacterBtn">Añadir Personaje</button>
   </div>
@@ -206,6 +225,7 @@
     const OWNER_UID = "HizrEHr3BjgUTyJZsSPoei0gHrA2";
 
     const tiers = [
+      { id: "new", label: "PERSONAJES NUEVOS", class: "new" }, // Nueva categoría añadida
       { id: "god", label: "GOD TIER", class: "god" },
       { id: "semi", label: "SEMI-GOD TIER", class: "semi" },
       { id: "usables", label: "USABLES TIER", class: "usables" },
@@ -213,15 +233,13 @@
       { id: "meme", label: "MEME TIER", class: "meme" }
     ];
 
-    const classes = ["MUTANTES", "HÁBILES", "CIENTÍFICOS", "MÍSTICOS", "CÓSMICOS", "TECNOS"];
-
     let isAdmin = false;
     let currentData = null;
     let draggedElement = null;
     let placeholder = document.createElement("div");
     placeholder.className = "placeholder";
 
-    let personajes = [];  // Aquí guardaremos los personajes
+    let personajes = []; // Aquí guardamos los personajes
 
     const loginBtn = document.getElementById("loginBtn");
     const userArea = document.getElementById("userArea");
@@ -294,9 +312,8 @@
       buildStructure();
       tiers.forEach(t => {
         const table = document.getElementById(t.id);
-        const cls = t.class;
         personajes.forEach(personaje => {
-          if (personaje.clase === cls) {
+          if (personaje.clase === t.class) {
             table.appendChild(createRow(personaje));
           }
         });
@@ -309,9 +326,7 @@
         let baseData = {};
         tiers.forEach(t => {
           baseData[t.id] = {};
-          classes.forEach(cls => {
-            baseData[t.id][cls] = [];
-          });
+          baseData[t.id] = []; // Aseguramos que cada tier tenga un array vacío
         });
         await tierRef.set(baseData);
         render(baseData);
@@ -328,8 +343,10 @@
       const nombre = document.getElementById("nombrePersonaje").value;
       const clase = document.getElementById("clasePersonaje").value;
       const foto = document.getElementById("fotoPersonaje").value;
+      const tier = document.getElementById("tierPersonaje").value;
+
       if (nombre && clase && foto) {
-        const personaje = { nombre, clase, foto };
+        const personaje = { nombre, clase, foto, tier };
         personajes.push(personaje);
         render(currentData);
       }
