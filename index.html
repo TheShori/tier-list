@@ -68,7 +68,6 @@ body{
 
 .badge.viewer{background:#95a5a6;}
 
-/* SECTIONS */
 .section{
   background:#34495e;
   color:white;
@@ -80,23 +79,20 @@ body{
   border-radius:10px;
 }
 
-/* TABLE SIN SCROLL HORIZONTAL */
+/* TABLA SIN BAJADAS */
 .table{
   display:flex;
   gap:14px;
   padding:18px 0 0;
   justify-content:center;
-  flex-wrap:wrap;       /* Permite ajuste */
-  overflow-x:hidden;    /* Quita barra horizontal */
+  flex-wrap:nowrap;   /* 🔥 SIEMPRE UNA LINEA */
   width:92%;
   margin:0 auto 20px;
 }
 
-/* COLUMNAS FLUIDAS */
+/* 6 COLUMNAS FIJAS */
 .column{
-  flex:1 1 calc(16% - 10px);
-  min-width:180px;
-  max-width:260px;
+  flex:0 0 calc((100% - 70px) / 6);
   height:340px;
   background:white;
   border-radius:12px;
@@ -154,8 +150,6 @@ body{
 
 <script>
 
-/* ================= FIREBASE ================= */
-
 const firebaseConfig = {
   apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
   authDomain: "tier-list-mcoc.firebaseapp.com",
@@ -169,10 +163,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 const tierRef = db.collection("tierData").doc("main");
-
 const OWNER_UID = "HizrEHr3BjgUTyJZsSPoei0gHrA2";
-
-/* ================= CONFIG ================= */
 
 const tiers = [
   { id: "new", label: "PERSONAJES NUEVOS" },
@@ -185,7 +176,6 @@ const tiers = [
 
 const classes = ["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-/* PERSONAJES MANUALES */
 const MANUAL_CHARACTERS = [
   {
     tier:"new",
@@ -201,15 +191,10 @@ const MANUAL_CHARACTERS = [
   }
 ];
 
-/* ================= STATE ================= */
-
 let isAdmin=false;
-let currentData=null;
 let draggedElement=null;
 const placeholder=document.createElement("div");
 placeholder.className="placeholder";
-
-/* ================= LOGIN ================= */
 
 loginBtn.onclick=()=>{
   const provider=new firebase.auth.GoogleAuthProvider();
@@ -233,8 +218,6 @@ auth.onAuthStateChanged(user=>{
     userArea.innerHTML="";
   }
 });
-
-/* ================= BUILD ================= */
 
 function buildStructure(){
   const container=document.getElementById("tiersContainer");
@@ -278,11 +261,9 @@ function createTables(){
   });
 }
 
-/* SCROLL MÁS RÁPIDO */
 function autoScroll(e){
   const margin=150;
-  const maxSpeed=50;
-
+  const maxSpeed=60;
   const y=e.clientY;
   const h=window.innerHeight;
 
@@ -348,7 +329,6 @@ async function saveData(){
 }
 
 function render(data){
-  currentData=data;
   buildStructure();
   createTables();
   tiers.forEach(t=>{
