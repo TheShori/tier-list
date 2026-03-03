@@ -79,20 +79,17 @@ body{
   border-radius:10px;
 }
 
-/* TABLA SIN BAJADAS */
+/* 🔥 GRID PERFECTO DE 6 COLUMNAS */
 .table{
-  display:flex;
+  display:grid;
+  grid-template-columns: repeat(6, 1fr);
   gap:14px;
   padding:18px 0 0;
-  justify-content:center;
-  flex-wrap:nowrap;   /* 🔥 SIEMPRE UNA LINEA */
   width:92%;
   margin:0 auto 20px;
 }
 
-/* 6 COLUMNAS FIJAS */
 .column{
-  flex:0 0 calc((100% - 70px) / 6);
   height:340px;
   background:white;
   border-radius:12px;
