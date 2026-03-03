@@ -1,457 +1,391 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>Tier List MCOC PRO</title>
 
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #f0f0f0;
-    padding-top: 90px; /* espacio para la topbar fija */
-  }
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#f0f0f0;
+  padding-top:90px;
+}
 
-  /* Top Bar */
-  .topBar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #2c3e50;
-    padding: 16px 28px;
-    width: 100%;
-    color: white;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-    box-sizing: border-box;
-  }
+/* TOP BAR */
+.topBar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#2c3e50;
+  padding:16px 28px;
+  width:100%;
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:1000;
+  box-shadow:0 4px 10px rgba(0,0,0,.25);
+  box-sizing:border-box;
+}
 
-  .button {
-    background-color: #34495e;
-    color: white;
-    padding: 10px 14px;
-    border: none;
-    cursor: pointer;
-    border-radius: 10px;
-    transition: background-color 0.2s;
-    font-weight: 700;
-    user-select: none;
-  }
-  .button:hover { background-color: #2980b9; }
+.button{
+  background:#34495e;
+  color:white;
+  padding:10px 14px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+}
 
-  #userArea { display: flex; align-items: center; gap: 12px; }
+.button:hover{background:#2980b9;}
 
-  .userInfo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #34495e;
-    padding: 10px 14px;
-    border-radius: 999px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.25);
-  }
-  .userInfo img {
-    width: 36px; height: 36px; border-radius: 50%;
-  }
-  .badge {
-    padding: 5px 10px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 800;
-    color: white;
-    background: #2ecc71;
-  }
-  .badge.viewer { background: #95a5a6; }
+#userArea{display:flex;align-items:center;gap:12px;}
 
-  /* Secciones */
-  .section {
-    background-color: #34495e;
-    color: white;
-    font-weight: 900;
-    text-align: center;
-    padding: 14px 0;
-    margin: 26px auto 0;
-    width: 92%;
-    border-radius: 10px;
-    letter-spacing: 1px;
-  }
+.userInfo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#34495e;
+  padding:10px 14px;
+  border-radius:999px;
+}
 
-  /* Tablas / columnas: 6 SIEMPRE en la misma fila */
-  .table {
-    display: flex;
-    gap: 14px;
-    padding: 18px 0 0;
-    justify-content: center;
-    flex-wrap: nowrap;      /* no saltar línea */
-    overflow-x: auto;       /* si la pantalla es estrecha, scroll horizontal */
-    width: 92%;
-    margin: 0 auto 20px;
-    box-sizing: border-box;
-  }
+.userInfo img{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+}
 
-  .column {
-    background-color: white;
-    width: 240px;          /* ancho fijo para que entren 6 con scroll si hace falta */
-    min-width: 240px;
-    height: 340px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.12);
-    padding: 12px;
-    overflow-y: auto;
-    box-sizing: border-box;
-  }
+.badge{
+  padding:5px 10px;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:800;
+  color:white;
+  background:#2ecc71;
+}
 
-  .column .header {
-    font-size: 18px;
-    font-weight: 900;
-    text-align: center;
-    margin-bottom: 12px;
-  }
+.badge.viewer{background:#95a5a6;}
 
-  /* Personaje */
-  .row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    margin-bottom: 8px;
-    background-color: #ecf0f1;
-    border-radius: 10px;
-    cursor: grab;
-    user-select: none;
-  }
-  .row:active { cursor: grabbing; }
+/* SECTIONS */
+.section{
+  background:#34495e;
+  color:white;
+  font-weight:900;
+  text-align:center;
+  padding:14px 0;
+  margin:26px auto 0;
+  width:92%;
+  border-radius:10px;
+}
 
-  .row img {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    flex: 0 0 auto;
-    object-fit: cover;
-  }
-  .row span {
-    font-size: 14px;
-    color: #2c3e50;
-    font-weight: 700;
-    line-height: 1.2;
-  }
+.table{
+  display:flex;
+  gap:14px;
+  padding:18px 0 0;
+  justify-content:center;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  width:92%;
+  margin:0 auto 20px;
+}
 
-  .placeholder {
-    height: 44px;
-    background-color: #bfc5c8;
-    border-radius: 10px;
-    margin-bottom: 8px;
-  }
+.column{
+  background:white;
+  width:240px;
+  min-width:240px;
+  height:340px;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,.12);
+  padding:12px;
+  overflow-y:auto;
+}
+
+.header{
+  font-size:18px;
+  font-weight:900;
+  text-align:center;
+  margin-bottom:12px;
+}
+
+.row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px;
+  margin-bottom:8px;
+  background:#ecf0f1;
+  border-radius:10px;
+  cursor:grab;
+}
+
+.row img{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.placeholder{
+  height:44px;
+  background:#bfc5c8;
+  border-radius:10px;
+  margin-bottom:8px;
+}
 </style>
 </head>
 
 <body>
-  <div class="topBar">
-    <div id="loginBtn" class="button">Login</div>
-    <div id="userArea"></div>
-  </div>
 
-  <div id="tiersContainer"></div>
+<div class="topBar">
+  <div id="loginBtn" class="button">Login</div>
+  <div id="userArea"></div>
+</div>
 
-  <!-- Firebase compat -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<div id="tiersContainer"></div>
 
-  <script>
-    /* ============================
-       FIREBASE CONFIG (TUYA)
-    ============================ */
-    const firebaseConfig = {
-      apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
-      authDomain: "tier-list-mcoc.firebaseapp.com",
-      projectId: "tier-list-mcoc",
-      storageBucket: "tier-list-mcoc.firebasestorage.app",
-      messagingSenderId: "171313453656",
-      appId: "1:171313453656:web:83e1a681425422d8cac82d",
-      measurementId: "G-G2Q61X2G0X"
-    };
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
-    const tierRef = db.collection("tierData").doc("main");
+<script>
 
-    const OWNER_UID = "HizrEHr3BjgUTyJZsSPoei0gHrA2";
+/* ================= FIREBASE ================= */
 
-    /* ============================
-       ESTRUCTURA
-    ============================ */
-    const tiers = [
-      { id: "new",  label: "PERSONAJES NUEVOS" },
-      { id: "god",  label: "GOD TIER" },
-      { id: "semi", label: "SEMI-GOD TIER" },
-      { id: "usables", label: "USABLES TIER" },
-      { id: "ocasionales", label: "OCASIONALES TIER" },
-      { id: "meme", label: "MEME TIER" }
-    ];
+const firebaseConfig = {
+  apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
+  authDomain: "tier-list-mcoc.firebaseapp.com",
+  projectId: "tier-list-mcoc",
+  storageBucket: "tier-list-mcoc.firebasestorage.app",
+  messagingSenderId: "171313453656",
+  appId: "1:171313453656:web:83e1a681425422d8cac82d"
+};
 
-    const classes = ["MUTANTES", "HÁBILES", "CIENTÍFICOS", "MÍSTICOS", "CÓSMICOS", "TECNOS"];
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const tierRef = db.collection("tierData").doc("main");
 
-    /* ============================
-       AQUÍ AÑADES PERSONAJES A MANO
-       (se insertan 1 sola vez, sin duplicar)
-    ============================ */
-    const MANUAL_CHARACTERS = [
-      {
-        tier: "new",
-        cls: "TECNOS",
-        name: "Iron Man (Clásico)",
-        image: "https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360"
-      },
-      {
-        tier: "new",
-        cls: "MUTANTES",
-        name: "Onslaught",
-        image: "https://pbs.twimg.com/media/GAhX3ujXIAIKxIg?format=png&name=360x360"
-      }
-    ];
+const OWNER_UID = "HizrEHr3BjgUTyJZsSPoei0gHrA2";
 
-    /* ============================
-       STATE
-    ============================ */
-    let isAdmin = false;
-    let currentData = null;
-    let draggedElement = null;
-    const placeholder = document.createElement("div");
-    placeholder.className = "placeholder";
+/* ================= CONFIG ================= */
 
-    const loginBtn = document.getElementById("loginBtn");
-    const userArea = document.getElementById("userArea");
+const tiers = [
+  { id: "new", label: "PERSONAJES NUEVOS" },
+  { id: "god", label: "GOD TIER" },
+  { id: "semi", label: "SEMI-GOD TIER" },
+  { id: "usables", label: "USABLES TIER" },
+  { id: "ocasionales", label: "OCASIONALES TIER" },
+  { id: "meme", label: "MEME TIER" }
+];
 
-    loginBtn.onclick = () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider);
-    };
+const classes = ["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-    function logout() { auth.signOut(); }
+/* PERSONAJES MANUALES */
+const MANUAL_CHARACTERS = [
+  {
+    tier:"new",
+    cls:"TECNOS",
+    name:"Iron Man (Clásico)",
+    image:"https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360"
+  },
+  {
+    tier:"new",
+    cls:"MUTANTES",
+    name:"Onslaught",
+    image:"https://pbs.twimg.com/media/GAhX3ujXIAIKxIg?format=png&name=360x360"
+  }
+];
 
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        isAdmin = (user.uid === OWNER_UID);
-        loginBtn.style.display = "none";
-        userArea.innerHTML = `
-          <div class="userInfo">
-            <img src="${user.photoURL}">
-            <span style="font-weight:800">${user.displayName}</span>
-            <span class="badge ${isAdmin ? '' : 'viewer'}">${isAdmin ? 'ADMIN' : 'VIEWER'}</span>
-            <div class="button" onclick="logout()">Cerrar sesión</div>
-          </div>
-        `;
-      } else {
-        isAdmin = false;
-        loginBtn.style.display = "block";
-        userArea.innerHTML = "";
-      }
-      if (currentData) render(currentData);
+/* ================= STATE ================= */
+
+let isAdmin=false;
+let currentData=null;
+let draggedElement=null;
+const placeholder=document.createElement("div");
+placeholder.className="placeholder";
+
+/* ================= LOGIN ================= */
+
+loginBtn.onclick=()=>{
+  const provider=new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
+};
+
+auth.onAuthStateChanged(user=>{
+  if(user){
+    isAdmin=(user.uid===OWNER_UID);
+    loginBtn.style.display="none";
+    userArea.innerHTML=`
+      <div class="userInfo">
+        <img src="${user.photoURL}">
+        <span>${user.displayName}</span>
+        <span class="badge ${isAdmin?'':'viewer'}">${isAdmin?'ADMIN':'VIEWER'}</span>
+        <div class="button" onclick="auth.signOut()">Cerrar sesión</div>
+      </div>`;
+  }else{
+    isAdmin=false;
+    loginBtn.style.display="block";
+    userArea.innerHTML="";
+  }
+});
+
+/* ================= BUILD ================= */
+
+function buildStructure(){
+  const container=document.getElementById("tiersContainer");
+  container.innerHTML="";
+  tiers.forEach(t=>{
+    container.innerHTML+=`
+      <div class="section">${t.label}</div>
+      <div class="table" id="${t.id}"></div>`;
+  });
+}
+
+function createTables(){
+  tiers.forEach(t=>{
+    const table=document.getElementById(t.id);
+    table.innerHTML="";
+    classes.forEach(cls=>{
+      const col=document.createElement("div");
+      col.className="column";
+      col.dataset.cls=cls;
+      col.innerHTML=`<div class="header">${cls}</div>`;
+
+      col.addEventListener("dragover",e=>{
+        if(!isAdmin)return;
+        e.preventDefault();
+        autoScroll(e);
+        const after=getDragAfterElement(col,e.clientY);
+        if(!after)col.appendChild(placeholder);
+        else col.insertBefore(placeholder,after);
+      });
+
+      col.addEventListener("drop",async e=>{
+        if(!isAdmin)return;
+        e.preventDefault();
+        col.insertBefore(draggedElement,placeholder);
+        placeholder.remove();
+        await saveData();
+      });
+
+      table.appendChild(col);
+    });
+  });
+}
+
+/* AUTO SCROLL */
+function autoScroll(e){
+  const margin=120;
+  const speed=20;
+  const y=e.clientY;
+  const h=window.innerHeight;
+
+  if(y>h-margin)window.scrollBy(0,speed);
+  if(y<margin)window.scrollBy(0,-speed);
+}
+
+function getDragAfterElement(container,y){
+  const els=[...container.querySelectorAll(".row:not(.dragging)")];
+  return els.reduce((closest,child)=>{
+    const box=child.getBoundingClientRect();
+    const offset=y-box.top-box.height/2;
+    if(offset<0&&offset>closest.offset){
+      return{offset,element:child};
+    }return closest;
+  },{offset:Number.NEGATIVE_INFINITY}).element;
+}
+
+function createRow(character){
+  const r=document.createElement("div");
+  r.className="row";
+  r.innerHTML=`<img src="${character.image}"><span>${character.name}</span>`;
+
+  if(isAdmin){
+    r.draggable=true;
+    r.addEventListener("dragstart",()=>{
+      draggedElement=r;
+      r.classList.add("dragging");
+    });
+    r.addEventListener("dragend",()=>{
+      r.classList.remove("dragging");
+      placeholder.remove();
+      draggedElement=null;
+    });
+  }
+  return r;
+}
+
+/* SAVE */
+async function saveData(){
+  const data={};
+  tiers.forEach(t=>{
+    data[t.id]={};
+    classes.forEach(cls=>{
+      data[t.id][cls]=[];
+      document.querySelectorAll(`#${t.id} [data-cls="${cls}"] .row`)
+      .forEach(r=>{
+        data[t.id][cls].push({
+          name:r.querySelector("span").textContent,
+          image:r.querySelector("img").src
+        });
+      });
+    });
+  });
+  await tierRef.set(data);
+}
+
+/* RENDER */
+function render(data){
+  currentData=data;
+  buildStructure();
+  createTables();
+  tiers.forEach(t=>{
+    classes.forEach(cls=>{
+      data[t.id][cls].forEach(char=>{
+        document.querySelector(`#${t.id} [data-cls="${cls}"]`)
+        .appendChild(createRow(char));
+      });
+    });
+  });
+}
+
+/* INIT */
+async function ensureBase(){
+  await db.runTransaction(async tx=>{
+    const snap=await tx.get(tierRef);
+    let data=snap.exists?snap.data():null;
+
+    if(!data){
+      data={};
+      tiers.forEach(t=>{
+        data[t.id]={};
+        classes.forEach(cls=>data[t.id][cls]=[]);
+      });
+    }
+
+    MANUAL_CHARACTERS.forEach(ch=>{
+      const exists=data[ch.tier][ch.cls]
+        .some(c=>c.name===ch.name);
+      if(!exists)data[ch.tier][ch.cls].push(ch);
     });
 
-    /* ============================
-       UI BUILD
-    ============================ */
-    function buildStructure() {
-      const container = document.getElementById("tiersContainer");
-      container.innerHTML = "";
-      tiers.forEach(t => {
-        container.innerHTML += `
-          <div class="section">${t.label}</div>
-          <div class="table" id="${t.id}"></div>
-        `;
-      });
-    }
+    tx.set(tierRef,data);
+  });
+}
 
-    function createTables() {
-      tiers.forEach(t => {
-        const table = document.getElementById(t.id);
-        table.innerHTML = "";
-        classes.forEach(cls => {
-          const col = document.createElement("div");
-          col.className = "column";
-          col.dataset.cls = cls;
-          col.innerHTML = `<div class="header">${cls}</div>`;
+async function init(){
+  await ensureBase();
+  const snap=await tierRef.get();
+  if(snap.exists)render(snap.data());
+  tierRef.onSnapshot(doc=>{
+    if(doc.exists)render(doc.data());
+  });
+}
 
-          col.addEventListener("dragover", e => {
-            if (!isAdmin) return;
-            e.preventDefault();
-            const afterElement = getDragAfterElement(col, e.clientY);
-            if (!afterElement) col.appendChild(placeholder);
-            else col.insertBefore(placeholder, afterElement);
-          });
+init();
 
-          col.addEventListener("drop", async e => {
-            if (!isAdmin) return;
-            e.preventDefault();
-            if (draggedElement) {
-              col.insertBefore(draggedElement, placeholder);
-              placeholder.remove();
-              await saveData();
-            }
-          });
-
-          table.appendChild(col);
-        });
-      });
-    }
-
-    function getDragAfterElement(container, y) {
-      const els = [...container.querySelectorAll(".row:not(.dragging)")];
-      return els.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-          return { offset, element: child };
-        }
-        return closest;
-      }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
-    }
-
-    function createRow(character) {
-      const name = typeof character === "string" ? character : character.name;
-      const image = (typeof character === "string")
-        ? (IMAGE_MAP[name] || DEFAULT_IMG)
-        : (character.image || DEFAULT_IMG);
-
-      const r = document.createElement("div");
-      r.className = "row";
-      r.innerHTML = `<img src="${image}" alt="${name}"><span>${name}</span>`;
-
-      // drag admin
-      if (isAdmin) {
-        r.draggable = true;
-        r.addEventListener("dragstart", () => {
-          draggedElement = r;
-          r.classList.add("dragging");
-        });
-        r.addEventListener("dragend", () => {
-          r.classList.remove("dragging");
-          placeholder.remove();
-          draggedElement = null;
-        });
-      }
-
-      return r;
-    }
-
-    /* ============================
-       IMÁGENES
-       - Para compatibilidad: si en tu BD hay arrays de strings,
-         aquí se resuelven a URL.
-       - Como YA estamos guardando objetos {name,image},
-         esto solo sirve de “fallback”.
-    ============================ */
-    const DEFAULT_IMG = "https://via.placeholder.com/60?text=?";
-    const IMAGE_MAP = {
-      "Iron Man (Clásico)": "https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360",
-      "Onslaught": "https://pbs.twimg.com/media/GAhX3ujXIAIKxIg?format=png&name=360x360"
-    };
-
-    /* ============================
-       SAVE (GUARDA OBJETOS)
-    ============================ */
-    async function saveData() {
-      if (!isAdmin) return;
-
-      const data = {};
-      tiers.forEach(t => {
-        data[t.id] = {};
-        classes.forEach(cls => {
-          const arr = [];
-          document.querySelectorAll(`#${t.id} [data-cls="${cls}"] .row`).forEach(r => {
-            arr.push({
-              name: r.querySelector("span").textContent,
-              image: r.querySelector("img").src
-            });
-          });
-          data[t.id][cls] = arr;
-        });
-      });
-
-      await tierRef.set(data);
-    }
-
-    /* ============================
-       RENDER
-    ============================ */
-    function render(data) {
-      currentData = data;
-
-      buildStructure();
-      createTables();
-
-      tiers.forEach(t => {
-        classes.forEach(cls => {
-          const list = data?.[t.id]?.[cls];
-          if (Array.isArray(list)) {
-            const target = document.querySelector(`#${t.id} [data-cls="${cls}"]`);
-            list.forEach(item => target.appendChild(createRow(item)));
-          }
-        });
-      });
-    }
-
-    /* ============================
-       INIT + SEED SIN DUPLICADOS
-       (EN TRANSACTION para que no se pise ni duplique)
-    ============================ */
-    async function ensureBaseAndSeed() {
-      await db.runTransaction(async (tx) => {
-        const snap = await tx.get(tierRef);
-        let data = snap.exists ? snap.data() : null;
-
-        // base
-        if (!data) {
-          data = {};
-          tiers.forEach(t => {
-            data[t.id] = {};
-            classes.forEach(cls => data[t.id][cls] = []);
-          });
-        } else {
-          // asegurar claves
-          tiers.forEach(t => {
-            if (!data[t.id]) data[t.id] = {};
-            classes.forEach(cls => {
-              if (!Array.isArray(data[t.id][cls])) data[t.id][cls] = [];
-            });
-          });
-        }
-
-        // seed manual (sin duplicar)
-        MANUAL_CHARACTERS.forEach(ch => {
-          const arr = data[ch.tier][ch.cls];
-
-          // si la BD tiene strings, convertir a objetos al vuelo al añadir
-          const exists = arr.some(x => (typeof x === "string" ? x : x.name) === ch.name);
-          if (!exists) {
-            arr.push({ name: ch.name, image: ch.image });
-          }
-        });
-
-        tx.set(tierRef, data);
-      });
-    }
-
-    async function init() {
-      await ensureBaseAndSeed();
-
-      // primera carga
-      const snap = await tierRef.get();
-      if (snap.exists) render(snap.data());
-
-      // realtime
-      tierRef.onSnapshot(doc => {
-        if (doc.exists) render(doc.data());
-      });
-    }
-
-    init();
-  </script>
+</script>
 </body>
 </html>
