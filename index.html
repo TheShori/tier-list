@@ -178,7 +178,7 @@ const tierRef = db.collection("tierData").doc("main");
 const OWNER_UID="HizrEHr3BjgUTyJZsSPoei0gHrA2";
 
 const tiers=[
-{id:"new",label:"PERSONAJES NUEVOS",class:"new"}, /* Nueva categoría añadida */
+{id:"new",label:"PERSONAJES NUEVOS",class:"new"},
 {id:"god",label:"GOD TIER",class:"god"},
 {id:"semi",label:"SEMI-GOD TIER",class:"semi"},
 {id:"usables",label:"USABLES TIER",class:"usables"},
@@ -366,7 +366,7 @@ async function init(){
 buildStructure();
 init();
 
-// Añadido manualmente a "Personajes Nuevos" y guardado en Firebase
+// Añadir personajes manualmente a "Personajes Nuevos" y guardarlos en Firebase
 document.querySelector("#new [data-cls='MUTANTES']").appendChild(createRow("Onslaught", "https://pbs.twimg.com/media/GAhX3ujXIAIKxIg?format=png&name=360x360"));
 document.querySelector("#new [data-cls='TECNOS']").appendChild(createRow("Iron Man (Clásico)", "https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360"));
 
