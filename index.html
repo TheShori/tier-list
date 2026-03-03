@@ -80,22 +80,25 @@ body{
   border-radius:10px;
 }
 
+/* TABLE SIN SCROLL HORIZONTAL */
 .table{
   display:flex;
   gap:14px;
   padding:18px 0 0;
   justify-content:center;
-  flex-wrap:nowrap;
-  overflow-x:auto;
+  flex-wrap:wrap;       /* Permite ajuste */
+  overflow-x:hidden;    /* Quita barra horizontal */
   width:92%;
   margin:0 auto 20px;
 }
 
+/* COLUMNAS FLUIDAS */
 .column{
-  background:white;
-  width:240px;
-  min-width:240px;
+  flex:1 1 calc(16% - 10px);
+  min-width:180px;
+  max-width:260px;
   height:340px;
+  background:white;
   border-radius:12px;
   box-shadow:0 4px 10px rgba(0,0,0,.12);
   padding:12px;
@@ -275,15 +278,23 @@ function createTables(){
   });
 }
 
-/* AUTO SCROLL */
+/* SCROLL MÁS RÁPIDO */
 function autoScroll(e){
-  const margin=120;
-  const speed=20;
+  const margin=150;
+  const maxSpeed=50;
+
   const y=e.clientY;
   const h=window.innerHeight;
 
-  if(y>h-margin)window.scrollBy(0,speed);
-  if(y<margin)window.scrollBy(0,-speed);
+  if(y>h-margin){
+    const intensity=(y-(h-margin))/margin;
+    window.scrollBy(0,maxSpeed*intensity);
+  }
+
+  if(y<margin){
+    const intensity=(margin-y)/margin;
+    window.scrollBy(0,-maxSpeed*intensity);
+  }
 }
 
 function getDragAfterElement(container,y){
@@ -293,7 +304,8 @@ function getDragAfterElement(container,y){
     const offset=y-box.top-box.height/2;
     if(offset<0&&offset>closest.offset){
       return{offset,element:child};
-    }return closest;
+    }
+    return closest;
   },{offset:Number.NEGATIVE_INFINITY}).element;
 }
 
@@ -317,7 +329,6 @@ function createRow(character){
   return r;
 }
 
-/* SAVE */
 async function saveData(){
   const data={};
   tiers.forEach(t=>{
@@ -336,7 +347,6 @@ async function saveData(){
   await tierRef.set(data);
 }
 
-/* RENDER */
 function render(data){
   currentData=data;
   buildStructure();
@@ -351,7 +361,6 @@ function render(data){
   });
 }
 
-/* INIT */
 async function ensureBase(){
   await db.runTransaction(async tx=>{
     const snap=await tx.get(tierRef);
@@ -387,5 +396,6 @@ async function init(){
 init();
 
 </script>
+
 </body>
 </html>
