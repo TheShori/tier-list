@@ -11,7 +11,6 @@ body{
   background:#dcdcdc;
 }
 
-/* TOP BAR */
 .topBar{
   background:#34495e;
   padding:20px 40px;
@@ -29,7 +28,6 @@ body{
   padding:12px 20px;
   border-radius:40px;
   color:white;
-  box-shadow:0 4px 15px rgba(0,0,0,.3);
 }
 
 .userCard img{
@@ -46,12 +44,6 @@ body{
   font-weight:bold;
 }
 
-.logout{
-  cursor:pointer;
-  font-weight:bold;
-}
-
-/* SECTIONS */
 .section{
   margin:40px auto 20px;
   width:90%;
@@ -60,10 +52,8 @@ body{
   text-align:center;
   padding:15px;
   font-weight:bold;
-  letter-spacing:1px;
 }
 
-/* TABLE */
 .table{
   width:90%;
   margin:auto;
@@ -78,7 +68,6 @@ body{
   border-radius:12px;
   padding:15px;
   min-height:300px;
-  box-shadow:0 5px 15px rgba(0,0,0,.15);
 }
 
 .header{
@@ -95,20 +84,12 @@ body{
   padding:8px;
   border-radius:8px;
   margin-bottom:8px;
-  cursor:pointer;
 }
 
 .row img{
   width:30px;
   height:30px;
   border-radius:50%;
-}
-
-.placeholder{
-  height:40px;
-  background:#bbb;
-  border-radius:8px;
-  margin-bottom:8px;
 }
 </style>
 </head>
@@ -119,10 +100,8 @@ body{
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
 <script>
-/* ================= FIREBASE ================= */
 
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
@@ -132,17 +111,12 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth();
 const tierRef = db.collection("tierData").doc("main");
-
-const OWNER_UID = "HizrEHr3BjgUTyJZsSPoei0gHrA2";
-
-/* ================= CONFIG ================= */
 
 const tiers = [
   {id:"new", label:"PERSONAJES NUEVOS"},
   {id:"god", label:"GOD TIER"},
-  {id:"semi", label:"SEMI-GOD TIER"},
+  {id:"semi", label:"SEMI-GOD"},
   {id:"usables", label:"USABLES"},
   {id:"ocasionales", label:"OCASIONALES"},
   {id:"meme", label:"MEME"}
@@ -150,31 +124,9 @@ const tiers = [
 
 const classes = ["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
-let isAdmin=false;
 let currentData=null;
-let dragged=null;
-let placeholder=document.createElement("div");
-placeholder.className="placeholder";
 
-/* ================= LOGIN ================= */
-
-auth.onAuthStateChanged(user=>{
-  const bar=document.getElementById("topBar");
-  bar.innerHTML="";
-
-  if(user){
-    isAdmin = user.uid===OWNER_UID;
-    bar.innerHTML=`
-      <div class="userCard">
-        <img src="${user.photoURL}">
-        <div>${user.displayName}</div>
-        ${isAdmin?'<div class="badge">ADMIN</div>':''}
-        <div class="logout" onclick="auth.signOut()">Cerrar sesión</div>
-      </div>`;
-  }
-});
-
-/* ================= BUILD UI ================= */
+/* BUILD UI */
 
 function buildStructure(){
   const container=document.getElementById("tiersContainer");
@@ -195,37 +147,15 @@ function createTables(){
       col.className="column";
       col.dataset.cls=cls;
       col.innerHTML=`<div class="header">${cls}</div>`;
-
-      col.addEventListener("dragover",e=>{
-        if(!isAdmin) return;
-        e.preventDefault();
-        col.appendChild(placeholder);
-      });
-
-      col.addEventListener("drop",async e=>{
-        if(!isAdmin) return;
-        e.preventDefault();
-        col.insertBefore(dragged,placeholder);
-        placeholder.remove();
-        await saveData();
-      });
-
       table.appendChild(col);
     });
   });
 }
 
-/* ================= RENDER ================= */
-
 function createRow(character){
   let r=document.createElement("div");
   r.className="row";
   r.innerHTML=`<img src="${character.image}"><span>${character.name}</span>`;
-
-  if(isAdmin){
-    r.draggable=true;
-    r.addEventListener("dragstart",()=>{dragged=r;});
-  }
   return r;
 }
 
@@ -246,30 +176,12 @@ function render(data){
   });
 }
 
-/* ================= SAVE ================= */
-
-async function saveData(){
-  let data={};
-  tiers.forEach(t=>{
-    data[t.id]={};
-    classes.forEach(cls=>{
-      data[t.id][cls]=[];
-      document.querySelectorAll(`#${t.id} [data-cls="${cls}"] .row`)
-      .forEach(r=>{
-        data[t.id][cls].push({
-          name:r.querySelector("span").textContent,
-          image:r.querySelector("img").src
-        });
-      });
-    });
-  });
-  await tierRef.set(data);
-}
-
-/* ================= INIT ================= */
+/* INIT */
 
 async function init(){
+
   let snap=await tierRef.get();
+
   if(!snap.exists){
     let base={};
     tiers.forEach(t=>{
@@ -277,37 +189,38 @@ async function init(){
       classes.forEach(cls=>base[t.id][cls]=[]);
     });
     await tierRef.set(base);
-    render(base);
-  }else{
-    render(snap.data());
+    snap=await tierRef.get();
   }
+
+  let data=snap.data();
+
+  /* INSERTAR PERSONAJES MANUALES AQUÍ */
+  function addIfMissing(tier,cls,name,image){
+    if(!data[tier][cls].some(c=>c.name===name)){
+      data[tier][cls].push({name,image});
+    }
+  }
+
+  addIfMissing("new","TECNOS",
+    "Iron Man (Clásico)",
+    "https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360"
+  );
+
+  addIfMissing("new","MUTANTES",
+    "Onslaught",
+    "https://pbs.twimg.com/media/GAhX3ujXIAIKxIg?format=png&name=360x360"
+  );
+
+  await tierRef.set(data);
+
+  render(data);
 
   tierRef.onSnapshot(doc=>{
     if(doc.exists) render(doc.data());
   });
 }
 
-buildStructure();
 init();
-
-/* ================= PERSONAJES MANUALES SIN DUPLICADOS ================= */
-
-async function ensureCharacter(tier,cls,name,image){
-  let snap=await tierRef.get();
-  let data=snap.data();
-  if(!data[tier][cls].some(c=>c.name===name)){
-    data[tier][cls].push({name,image});
-    await tierRef.set(data);
-  }
-}
-
-ensureCharacter("new","TECNOS",
-"Iron Man (Clásico)",
-"https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360");
-
-ensureCharacter("new","MUTANTES",
-"Onslaught",
-"https://pbs.twimg.com/media/GAhX3ujXIAIKxIg?format=png&name=360x360");
 
 </script>
 </body>
