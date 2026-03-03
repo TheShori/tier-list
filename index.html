@@ -300,7 +300,7 @@ function createRow(name, imageUrl){
   return r;
 }
 
-// Función para agregar un personaje a Firebase
+// Función para agregar un personaje a Firebase en la subcolección 'characters'
 async function addCharacterToFirebase(tier, cls, name, imageUrl) {
     const characterRef = tierRef.collection(tier).doc(cls).collection("characters");
     await characterRef.add({
