@@ -5,7 +5,7 @@
 <title>Tier List MCOC PRO</title>
 
 <style>
-/* Estilos anteriores */
+/* General Body and Layout */
 body {
   font-family: 'Arial', sans-serif;
   margin: 0;
@@ -15,6 +15,8 @@ body {
   align-items: center;
   padding-top: 100px;
 }
+
+/* Top Bar Styling */
 .topBar {
   display: flex;
   justify-content: space-between;
@@ -29,6 +31,7 @@ body {
   z-index: 1000;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
 }
+
 .topBar .button {
   background-color: #34495e;
   color: white;
@@ -38,9 +41,58 @@ body {
   border-radius: 5px;
   transition: background-color 0.3s;
 }
+
 .topBar .button:hover {
   background-color: #2980b9;
 }
+
+/* User Area Styling */
+#userArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #34495e;
+  padding: 10px;
+  border-radius: 30px;
+  color: white;
+  font-size: 14px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.userInfo img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+}
+
+.userInfo .adminBadge {
+  background-color: #2ecc71;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.userInfo .viewerBadge {
+  background-color: #95a5a6;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.topBar .button {
+  font-size: 14px;
+  padding: 10px 15px;
+}
+
+/* Content Section */
 .section {
   background-color: #34495e;
   color: white;
@@ -50,6 +102,7 @@ body {
   margin-top: 150px;
   width: 100%;
 }
+
 .table {
   display: flex;
   gap: 15px;
@@ -59,6 +112,7 @@ body {
   overflow-x: auto;
   margin-top: 20px;
 }
+
 .column {
   background-color: white;
   width: 150px;
@@ -69,15 +123,19 @@ body {
   transition: transform 0.3s;
   overflow-y: auto;
 }
+
 .column:hover {
   transform: scale(1.05);
 }
+
 .column .header {
   font-size: 18px;
   font-weight: bold;
   text-align: center;
   padding-bottom: 10px;
 }
+
+/* Row Styling */
 .row {
   display: flex;
   align-items: center;
@@ -89,20 +147,25 @@ body {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+
 .row:hover {
   background-color: #bdc3c7;
 }
+
 .row img {
   width: 30px;
   height: 30px;
   border-radius: 50%;
   margin-right: 10px;
 }
+
 .row span {
   font-size: 14px;
   color: #2c3e50;
   font-weight: normal;
 }
+
+/* Placeholder while waiting for characters */
 .placeholder {
   height: 40px;
   background-color: #95a5a6;
@@ -200,7 +263,6 @@ auth.onAuthStateChanged(user => {
 // Esta función ahora inserta directamente los personajes en las listas de clases en lugar de usar subcolecciones
 async function addCharacterToFirebase(tier, cls, name) {
   try {
-    // Agregar el personaje directamente al array de la clase correspondiente
     const tierDoc = await tierRef.get();
     let data = tierDoc.data();
     data[tier][cls].push(name);  // Añadir el personaje al array
@@ -234,6 +296,7 @@ function createTables() {
       col.dataset.cls = cls;
       col.innerHTML = "<div class='header'>" + cls + "</div>";
 
+      // Permitir que los elementos se arrastren y se dejen caer
       col.addEventListener("dragover", e => {
         if (!isAdmin) return;
         e.preventDefault();
@@ -245,13 +308,13 @@ function createTables() {
         }
       });
 
-      col.addEventListener("drop", e => {
+      col.addEventListener("drop", async e => {
         if (!isAdmin) return;
         e.preventDefault();
         if (draggedElement) {
           col.insertBefore(draggedElement, placeholder);
           placeholder.remove();
-          saveData();
+          await saveData(); // Guardar los cambios en Firebase
         }
       });
 
@@ -260,7 +323,60 @@ function createTables() {
   });
 }
 
-// Recupera los personajes de la base de datos y los inserta en la interfaz
+// Función para obtener el próximo elemento en el contenedor
+function getDragAfterElement(container, y) {
+  const elements = [...container.querySelectorAll(".row:not(.dragging)")];
+  return elements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// Crear fila para cada personaje
+function createRow(name, imageUrl) {
+  let r = document.createElement("div");
+  r.className = "row";
+  r.innerHTML = "<img src='" + imageUrl + "' alt='" + name + "' width='28' height='28' style='margin-right:6px;'><span>" + name + "</span>";
+
+  // Hacer los elementos arrastrables para el admin
+  if (isAdmin) {
+    r.draggable = true;
+    r.addEventListener("dragstart", () => {
+      draggedElement = r;
+      r.classList.add("dragging");
+    });
+    r.addEventListener("dragend", () => {
+      r.classList.remove("dragging");
+      placeholder.remove();
+      draggedElement = null;
+    });
+  }
+  return r;
+}
+
+// Función para guardar los datos actualizados en Firebase
+async function saveData() {
+  if (!isAdmin) return;
+  let data = {};
+  tiers.forEach(t => {
+    data[t.id] = {};
+    classes.forEach(cls => {
+      data[t.id][cls] = [];
+      document.querySelectorAll("#" + t.id + " [data-cls='" + cls + "'] .row")
+        .forEach(r => {
+          data[t.id][cls].push(r.querySelector("span").textContent);
+        });
+    });
+  });
+  await tierRef.set(data); // Guardar en Firebase
+}
+
+// Función para actualizar la interfaz en tiempo real
 function render(data) {
   currentData = data;
   buildStructure();
@@ -277,31 +393,6 @@ function render(data) {
       });
     }
   });
-}
-
-// Función para crear las filas con los personajes
-function createRow(name) {
-  let r = document.createElement("div");
-  r.className = "row";
-  r.innerHTML = "<span>" + name + "</span>";
-  return r;
-}
-
-// Guardar los datos actualizados
-async function saveData() {
-  if (!isAdmin) return;
-  let data = {};
-  tiers.forEach(t => {
-    data[t.id] = {};
-    classes.forEach(cls => {
-      data[t.id][cls] = [];
-      document.querySelectorAll("#" + t.id + " [data-cls='" + cls + "'] .row")
-        .forEach(r => {
-          data[t.id][cls].push(r.querySelector("span").textContent);
-        });
-    });
-  });
-  await tierRef.set(data);
 }
 
 // Inicialización
@@ -325,12 +416,12 @@ async function init() {
   });
 }
 
+buildStructure();
+init();
+
 // Añadir personajes manualmente a "Personajes Nuevos" y guardarlos en Firebase
 addCharacterToFirebase("new", "MUTANTES", "Onslaught");
 addCharacterToFirebase("new", "TECNOS", "Iron Man (Clásico)");
-
-buildStructure();
-init();
 
 </script>
 </body>
