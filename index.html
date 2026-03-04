@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
-<title>Tier List MCOC PRO</title>
+<title>Tier List MCOC</title>
 
 <style>
+
 body{
 margin:0;
-font-family:Arial, Helvetica, sans-serif;
+font-family:Arial;
 background:#f0f0f0;
 padding-top:90px;
 }
@@ -18,10 +21,9 @@ justify-content:space-between;
 align-items:center;
 background:#2c3e50;
 padding:16px 28px;
-width:100%;
 position:fixed;
 top:0;
-left:0;
+width:100%;
 z-index:1000;
 box-shadow:0 4px 10px rgba(0,0,0,.25);
 }
@@ -30,7 +32,6 @@ box-shadow:0 4px 10px rgba(0,0,0,.25);
 background:#34495e;
 color:white;
 padding:10px 14px;
-border:none;
 border-radius:10px;
 cursor:pointer;
 font-weight:700;
@@ -53,7 +54,7 @@ grid-template-columns: repeat(6, 1fr);
 gap:14px;
 padding:18px 0 0;
 width:92%;
-margin:0 auto 20px;
+margin:auto;
 }
 
 .column{
@@ -87,23 +88,25 @@ cursor:grab;
 width:30px;
 height:30px;
 border-radius:50%;
-object-fit:cover;
 }
 
 .placeholder{
-height:44px;
+height:42px;
 background:#bfc5c8;
 border-radius:10px;
 margin-bottom:8px;
 }
+
 </style>
 </head>
 
 <body>
 
 <div class="topBar">
+
 <div id="loginBtn" class="button">Login</div>
 <div id="userArea"></div>
+
 </div>
 
 <div id="tiersContainer"></div>
@@ -114,92 +117,259 @@ margin-bottom:8px;
 
 <script>
 
-const firebaseConfig = {
-apiKey: "AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
-authDomain: "tier-list-mcoc.firebaseapp.com",
-projectId: "tier-list-mcoc",
-storageBucket: "tier-list-mcoc.firebasestorage.app",
-messagingSenderId: "171313453656",
-appId: "1:171313453656:web:83e1a681425422d8cac82d"
+const firebaseConfig={
+apiKey:"AIzaSyAaIoPv9cXgnDZeADcahNokBjXW5NC9vn8",
+authDomain:"tier-list-mcoc.firebaseapp.com",
+projectId:"tier-list-mcoc",
+storageBucket:"tier-list-mcoc.firebasestorage.app",
+messagingSenderId:"171313453656",
+appId:"1:171313453656:web:83e1a681425422d8cac82d"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-const tierRef = db.collection("tierData").doc("main");
-const OWNER_UID = "HizrEHr3BjgUTyJZsSPoei0gHrA2";
 
-const tiers = [
-{ id:"new", label:"PERSONAJES NUEVOS"},
-{ id:"god", label:"GOD TIER"},
-{ id:"semi", label:"SEMI-GOD TIER"},
-{ id:"usables", label:"USABLES TIER"},
-{ id:"ocasionales", label:"OCASIONALES TIER"},
-{ id:"meme", label:"MEME TIER"}
+const db=firebase.firestore();
+const auth=firebase.auth();
+const tierRef=db.collection("tierData").doc("main");
+
+const OWNER_UID="HizrEHr3BjgUTyJZsSPoei0gHrA2";
+
+const tiers=[
+{id:"new",label:"PERSONAJES NUEVOS"},
+{id:"god",label:"GOD TIER"},
+{id:"semi",label:"SEMI-GOD TIER"},
+{id:"usables",label:"USABLES TIER"},
+{id:"ocasionales",label:"OCASIONALES TIER"},
+{id:"meme",label:"MEME TIER"}
 ];
 
-const classes = ["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
+const classes=["MUTANTES","HÁBILES","CIENTÍFICOS","MÍSTICOS","CÓSMICOS","TECNOS"];
 
 const MANUAL_CHARACTERS=[
-{tier:"new",cls:"TECNOS",name:"Iron Man (Clásico)",image:"https://pbs.twimg.com/media/F5RqSzSXYAA-_Z-?format=png&name=360x360"},
-{tier:"new",cls:"MUTANTES",name:"Onslaught",image:"https://pbs.twimg.com/media/GAhX3ujXIAIKxIg?format=png&name=360x360"}
+
+{
+id:"ironman",
+tier:"new",
+cls:"TECNOS",
+name:"Iron Man (Clásico)",
+image:"https://i.imgur.com/8Q1Z4kK.png"
+},
+
+{
+id:"onslaught",
+tier:"new",
+cls:"MUTANTES",
+name:"Onslaught",
+image:"https://i.imgur.com/cwS1F3S.png"
+}
+
 ];
 
 let isAdmin=false;
-let draggedElement=null;
+let dragged=null;
+
 const placeholder=document.createElement("div");
 placeholder.className="placeholder";
 
 loginBtn.onclick=()=>{
+
 const provider=new firebase.auth.GoogleAuthProvider();
 auth.signInWithPopup(provider);
+
 };
 
 auth.onAuthStateChanged(user=>{
+
 if(user){
+
 isAdmin=(user.uid===OWNER_UID);
+
 loginBtn.style.display="none";
-userArea.innerHTML=`
-<div class="userInfo">
-<img src="${user.photoURL}">
-<span>${user.displayName}</span>
-<span class="badge">${isAdmin?'ADMIN':'VIEWER'}</span>
-<div class="button" onclick="auth.signOut()">Cerrar sesión</div>
-</div>`;
+
+userArea.innerHTML=`<div class="button">${user.displayName} (${isAdmin?"ADMIN":"VIEWER"})</div>`;
+
 }
+
 });
 
 function buildStructure(){
+
 const container=document.getElementById("tiersContainer");
 container.innerHTML="";
 
 tiers.forEach(t=>{
+
 container.innerHTML+=`
 <div class="section">${t.label}</div>
-<div class="table" id="${t.id}"></div>`;
+<div class="table" id="${t.id}"></div>
+`;
+
 });
+
 }
 
 function createTables(){
+
 tiers.forEach(t=>{
+
 const table=document.getElementById(t.id);
-table.innerHTML="";
 
 classes.forEach(cls=>{
+
 const col=document.createElement("div");
 col.className="column";
 col.dataset.cls=cls;
+
 col.innerHTML=`<div class="header">${cls}</div>`;
-table.appendChild(col);
-});
-});
+
+col.addEventListener("dragover",e=>{
+
+if(!isAdmin)return;
+
+e.preventDefault();
+
+autoScroll(e);
+
+const after=getDragAfter(col,e.clientY);
+
+if(after==null){
+col.appendChild(placeholder);
+}else{
+col.insertBefore(placeholder,after);
 }
 
-function createRow(character){
+});
+
+col.addEventListener("drop",async e=>{
+
+if(!isAdmin)return;
+
+e.preventDefault();
+
+col.insertBefore(dragged,placeholder);
+
+placeholder.remove();
+
+await saveData();
+
+});
+
+table.appendChild(col);
+
+});
+
+});
+
+}
+
+function createRow(char){
+
 const r=document.createElement("div");
+
 r.className="row";
-r.innerHTML=`<img src="${character.image}"><span>${character.name}</span>`;
+r.dataset.id=char.id;
+
+r.innerHTML=`<img src="${char.image}"><span>${char.name}</span>`;
+
+if(isAdmin){
+
+r.draggable=true;
+
+r.addEventListener("dragstart",()=>{
+
+dragged=r;
+r.classList.add("dragging");
+
+});
+
+r.addEventListener("dragend",()=>{
+
+dragged=null;
+placeholder.remove();
+r.classList.remove("dragging");
+
+});
+
+}
+
 return r;
+
+}
+
+function getDragAfter(container,y){
+
+const els=[...container.querySelectorAll(".row:not(.dragging)")];
+
+return els.reduce((closest,child)=>{
+
+const box=child.getBoundingClientRect();
+const offset=y-box.top-box.height/2;
+
+if(offset<0&&offset>closest.offset){
+return{offset:offset,element:child};
+}else{
+return closest;
+}
+
+},{offset:Number.NEGATIVE_INFINITY}).element;
+
+}
+
+function autoScroll(e){
+
+const margin=140;
+const speed=70;
+
+const y=e.clientY;
+const h=window.innerHeight;
+
+if(y>h-margin)window.scrollBy(0,speed);
+if(y<margin)window.scrollBy(0,-speed);
+
+}
+
+async function saveData(){
+
+const data={};
+
+tiers.forEach(t=>{
+
+data[t.id]={};
+
+classes.forEach(cls=>{
+
+data[t.id][cls]=[];
+
+const seen=new Set();
+
+document
+.querySelectorAll(`#${t.id} [data-cls="${cls}"] .row`)
+.forEach(r=>{
+
+const id=r.dataset.id;
+
+if(!seen.has(id)){
+
+seen.add(id);
+
+data[t.id][cls].push({
+
+id:id,
+name:r.querySelector("span").textContent,
+image:r.querySelector("img").src
+
+});
+
+}
+
+});
+
+});
+
+});
+
+await tierRef.set(data);
+
 }
 
 function render(data){
@@ -208,18 +378,18 @@ buildStructure();
 createTables();
 
 tiers.forEach(t=>{
+
 classes.forEach(cls=>{
 
-if(!data[t.id]) return;
-if(!data[t.id][cls]) return;
+const list=(data[t.id]&&data[t.id][cls])?data[t.id][cls]:[];
 
 const seen=new Set();
 
-data[t.id][cls].forEach(char=>{
+list.forEach(char=>{
 
-if(!seen.has(char.name)){
+if(!seen.has(char.id)){
 
-seen.add(char.name);
+seen.add(char.id);
 
 document
 .querySelector(`#${t.id} [data-cls="${cls}"]`)
@@ -230,6 +400,7 @@ document
 });
 
 });
+
 });
 
 }
@@ -240,26 +411,33 @@ await db.runTransaction(async tx=>{
 
 const snap=await tx.get(tierRef);
 
-let data=snap.exists ? snap.data() : {};
+let data=snap.exists?snap.data():{};
 
 tiers.forEach(t=>{
-if(!data[t.id]) data[t.id]={};
+
+if(!data[t.id])data[t.id]={};
+
 classes.forEach(cls=>{
-if(!data[t.id][cls]) data[t.id][cls]=[];
-});
+
+if(!data[t.id][cls])data[t.id][cls]=[];
+
 });
 
-MANUAL_CHARACTERS.forEach(ch=>{
+});
+
+MANUAL_CHARACTERS.forEach(char=>{
 
 let exists=false;
 
 tiers.forEach(t=>{
 classes.forEach(cls=>{
-if(data[t.id][cls].some(c=>c.name===ch.name)) exists=true;
+
+if(data[t.id][cls].some(c=>c.id===char.id))exists=true;
+
 });
 });
 
-if(!exists) data[ch.tier][ch.cls].push(ch);
+if(!exists)data[char.tier][char.cls].push(char);
 
 });
 
@@ -274,9 +452,9 @@ async function init(){
 await ensureBase();
 
 tierRef.onSnapshot(doc=>{
-if(doc.exists){
-render(doc.data());
-}
+
+if(doc.exists)render(doc.data());
+
 });
 
 }
@@ -284,5 +462,6 @@ render(doc.data());
 init();
 
 </script>
+
 </body>
 </html>
